@@ -5,11 +5,22 @@
 	"license": "MIT",
 	"homepage": "",
 	"keywords": [
-		"n8n-community-node-package"
+		"n8n-community-node-package",
+		"sales",
+		"crm",
+		"crono",
+		"outreach",
+		"outbound",
+		"productivity",
+		"automation",
+		"public api",
+		"saas",
+		"saas connectors"
 	],
 	"author": {
 		"name": "Crono SaaS",
-		"email": "TODO@crono.one"
+		"email": "TODO@crono.one",
+		"url": "https://www.crono.one/"
 	},
 	"repository": {
 		"type": "git",
