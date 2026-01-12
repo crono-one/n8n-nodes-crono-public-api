@@ -5,15 +5,16 @@ on:
     branches: [master]
 
 permissions:
+  checks: write
   contents: write
   pull-requests: write
   statuses: write
-  checks: write
   id-token: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,8 +42,14 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Ensure Trusted Publishing (OIDC) is used for publish by removing any token-based npm auth.
+      - name: Clean npm auth before publish (OIDC)
+        run: |
+          rm -f ~/.npmrc .npmrc || true
+          echo "NODE_AUTH_TOKEN=" >> $GITHUB_ENV
+          echo "NPM_TOKEN=" >> $GITHUB_ENV
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # IMPORTANT: niente NPM_TOKEN / NODE_AUTH_TOKEN qui
         run: npx semantic-release
