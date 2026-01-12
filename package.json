@@ -7,19 +7,29 @@
 	"keywords": [
 		"n8n-community-node-package",
 		"sales",
-		"crm",
+		"CRM",
 		"crono",
 		"outreach",
 		"outbound",
 		"productivity",
-		"automation",
 		"public api",
 		"saas",
-		"saas connectors"
+		"saas connectors",
+		"sales automation",
+		"AI sales automation",
+		"lead generation",
+		"lead enrichment",
+		"email sequencing",
+		"multichannel outreach",
+		"task automation",
+		"CRM sync",
+		"CRM integration",
+		"automation",
+		"AI outreach"
 	],
 	"author": {
 		"name": "Crono SaaS",
-		"email": "TODO@crono.one",
+		"email": "hello@crono.one",
 		"url": "https://www.crono.one/"
 	},
 	"repository": {
