@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v2.0.0...v2.0.1) (2026-01-12)
+
+### Bug Fixes
+
+* Fixed ci ([0f6923c](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/0f6923c32764c4c7da1c29fd2a6a8fff23ac2a29))
+* Fixed ci ([ef8a16e](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/ef8a16e96ef36f6ca430b818635da5b541722060))
+* Fixed ci ([6a83857](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/6a83857ef375683cddb1663b671a4b4313547b37))
+* Fixed ci ([76910d7](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/76910d787ed9dc0cd34bf5ae0ebed34eac9a3c6c))
+
 ## [2.0.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.0.0...v2.0.0) (2026-01-12)
 
 ### ⚠ BREAKING CHANGES
