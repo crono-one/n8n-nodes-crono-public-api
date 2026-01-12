@@ -1,3 +1,13 @@
+## [2.0.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.0.0...v2.0.0) (2026-01-12)
+
+### ⚠ BREAKING CHANGES
+
+* **core:** this marks the first stable 1.0.0 release
+
+### Features
+
+* **core:** initial stable release ([6b7c67b](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/6b7c67b384295e597f0f427a358c75506e0fb8ec))
+
 ## 1.0.0 (2026-01-12)
 
 ### ⚠ BREAKING CHANGES
