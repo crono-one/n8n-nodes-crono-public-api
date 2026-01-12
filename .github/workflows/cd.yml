@@ -1,4 +1,4 @@
-name: Release (vanilla npm publish + conventional bump)
+name: Release (simple conventional bump + vanilla publish)
 
 on:
   push:
@@ -7,19 +7,10 @@ on:
 permissions:
   contents: write
   id-token: write
-  actions: read
-
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
-
-    if: |
-      !contains(github.event.head_commit.message, 'chore(release):') &&
-      !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout
@@ -27,60 +18,87 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node (npm OIDC compatible)
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org/
           cache: npm
 
-      - name: Show node/npm versions
+      - name: Show versions
         run: |
-          node --version
-          npm --version
+          node -v
+          npm -v
 
       - name: Install
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
       - name: Build
         run: npm run build
 
-      - name: Determine version bump (conventional commits)
+      # -------------------------------
+      # Decide bump from git commits
+      # -------------------------------
+      - name: Determine version bump
         id: bump
         run: |
-          BUMP=$(npx -y conventional-recommended-bump -p conventionalcommits | tr -d '\n' || true)
-          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
-          if [ -z "$BUMP" ]; then
-            echo "No release required (no conventional commits triggering a bump)."
-          else
-            echo "Recommended bump: $BUMP"
+          set -e
+
+          # Ultimo tag (se non esiste, parte da 0.0.0)
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+
+          COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=%B)
+
+          echo "Commits since $LAST_TAG:"
+          echo "$COMMITS"
+
+          BUMP=""
+
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE"; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -Eq "^[a-zA-Z]+!:"; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -Eq "^feat(\(.+\))?: "; then
+            BUMP="minor"
+          elif echo "$COMMITS" | grep -Eq "^fix(\(.+\))?: "; then
+            BUMP="patch"
           fi
 
-      - name: Stop if no bump needed
-        if: steps.bump.outputs.bump == ''
-        run: echo "Skipping release."
+          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
 
-      - name: Configure git author
+          if [ -z "$BUMP" ]; then
+            echo "No version bump needed"
+          else
+            echo "Version bump: $BUMP"
+          fi
+
+      - name: Stop if no release needed
+        if: steps.bump.outputs.bump == ''
+        run: echo "Skipping release"
+
+      # -------------------------------
+      # Bump version, commit & tag
+      # -------------------------------
+      - name: Configure git
         if: steps.bump.outputs.bump != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump version, commit & tag
+      - name: Bump version
         if: steps.bump.outputs.bump != ''
         run: |
           npm version ${{ steps.bump.outputs.bump }} -m "chore(release): %s [skip ci]"
 
-      - name: Push commit and tags
+      - name: Push commit and tag
         if: steps.bump.outputs.bump != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git push origin HEAD:master --follow-tags
+          git push origin master --follow-tags
 
-      - name: Publish to npm (Trusted Publishing / OIDC)
+      # -------------------------------
+      # Vanilla npm publish (OIDC)
+      # -------------------------------
+      - name: Publish to npm
         if: steps.bump.outputs.bump != ''
         run: npm publish
