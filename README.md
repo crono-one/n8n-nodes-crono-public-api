@@ -17,18 +17,18 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
+- Activities: Get, Get Many, Search
 - Companies: Create, Get, Get Many, Search, Update, Import
 - Contacts: Create, Get, Get Many, Search, Update, Import
 - Deals: Create, Get, Get Many, Search, Update
-- Notes: Create, Get, Get Many, Search
-- Tasks: Create, Search
-- Activities: Get, Get Many, Search
+- External Properties: Search
+- Imports: Get, Get Many
 - Lists: Search
+- Notes: Create, Get, Get Many, Search
 - Pipelines: Get Many
 - Strategies: Search, Search Details
-- External Properties: Search
+- Tasks: Create, Search
 - Users: Get, Get Many, Search
-- Imports: Get, Get Many
 
 ## Credentials
 
