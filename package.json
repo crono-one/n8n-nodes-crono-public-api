@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-crono-public-api",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Community package for n8n including the Crono Public API integration.",
 	"license": "MIT",
 	"homepage": "",
