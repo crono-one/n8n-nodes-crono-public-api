@@ -54,5 +54,4 @@ Tested against n8n version: 1.120.4
 
 ## Version history
 
-- 0.1.0: Initial release
-- 1.0.0: Version One
+* [CHANGELOG](./CHANGELOG.md)

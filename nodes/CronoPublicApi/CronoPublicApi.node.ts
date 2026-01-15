@@ -120,7 +120,7 @@ async function cronoApiRequest(
 
 export class CronoPublicApi implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Crono Public API',
+		displayName: 'Crono',
 		name: 'cronoPublicApi',
 		icon: 'file:/crono.svg',
 		group: ['input'],
