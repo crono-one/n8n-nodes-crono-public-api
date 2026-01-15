@@ -55,3 +55,5 @@ Tested against n8n version: 1.120.4
 ## Version history
 
 * [CHANGELOG](./CHANGELOG.md)
+
+----
