@@ -1,4 +1,4 @@
-name: Release (simple conventional bump + vanilla publish)
+name: Release (semantic-release)
 
 on:
   push:
@@ -6,99 +6,37 @@ on:
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
   id-token: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          registry-url: https://registry.npmjs.org/
           cache: npm
-
-      - name: Show versions
-        run: |
-          node -v
-          npm -v
 
       - name: Install
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
       - name: Build
         run: npm run build
 
-      # -------------------------------
-      # Decide bump from git commits
-      # -------------------------------
-      - name: Determine version bump
-        id: bump
-        run: |
-          set -e
-
-          # Ultimo tag (se non esiste, parte da 0.0.0)
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-
-          COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=%B)
-
-          echo "Commits since $LAST_TAG:"
-          echo "$COMMITS"
-
-          BUMP=""
-
-          if echo "$COMMITS" | grep -q "BREAKING CHANGE"; then
-            BUMP="major"
-          elif echo "$COMMITS" | grep -Eq "^[a-zA-Z]+!:"; then
-            BUMP="major"
-          elif echo "$COMMITS" | grep -Eq "^feat(\(.+\))?: "; then
-            BUMP="minor"
-          elif echo "$COMMITS" | grep -Eq "^fix(\(.+\))?: "; then
-            BUMP="patch"
-          fi
-
-          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
-
-          if [ -z "$BUMP" ]; then
-            echo "No version bump needed"
-          else
-            echo "Version bump: $BUMP"
-          fi
-
-      - name: Stop if no release needed
-        if: steps.bump.outputs.bump == ''
-        run: echo "Skipping release"
-
-      # -------------------------------
-      # Bump version, commit & tag
-      # -------------------------------
-      - name: Configure git
-        if: steps.bump.outputs.bump != ''
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Bump version
-        if: steps.bump.outputs.bump != ''
-        run: |
-          npm version ${{ steps.bump.outputs.bump }} -m "chore(release): %s [skip ci]"
-
-      - name: Push commit and tag
-        if: steps.bump.outputs.bump != ''
+      - name: Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git push origin master --follow-tags
-
-      # -------------------------------
-      # Vanilla npm publish (OIDC)
-      # -------------------------------
-      - name: Publish to npm
-        if: steps.bump.outputs.bump != ''
-        run: npm publish
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        run: npx semantic-release
