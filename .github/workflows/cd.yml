@@ -42,7 +42,9 @@ jobs:
           set -euo pipefail
           current=$(node -p "require('./package.json').version")
           last_tag="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          has_tag="false"
           if [ -n "$last_tag" ]; then
+            has_tag="true"
             range="$last_tag..HEAD"
             log="$(git log "$range" --pretty=%B)"
             bump="none"
@@ -71,7 +73,7 @@ jobs:
             # First release: use the current package.json version as-is.
             next="$current"
           fi
-          if [ "$next" = "$current" ]; then
+          if [ "$has_tag" = "true" ] && [ "$next" = "$current" ]; then
             echo "Version unchanged ($current). Skipping release."
             echo "skip_release=true" >> "$GITHUB_OUTPUT"
             exit 0
