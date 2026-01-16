@@ -1,4 +1,9 @@
-## 1.0.0 (2026-01-15)
+## [0.1.3](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v0.1.2...v0.1.3) (2026-01-16)
+
+### Bug Fixes
+
+* update changelog during release ([5aae2f8](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/5aae2f8e30130ea44afc0fa971267b1106cf933b))
+## [0.1.2](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/0b680ed00714bae4ea8465fe9d59038920b51ec9...v0.1.2) (2026-01-16)
 
 ### ⚠ BREAKING CHANGES
 
@@ -14,6 +19,11 @@
 ### Bug Fixes
 
 * Added .releaserc.json for semantic release and made package access to public ([9843f50](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/9843f50f0233f5459da0670788060e71ff585834))
+* align bump step indentation ([92908d3](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/92908d3f593a57de6167dc34ebe813e9b3bc8fd1))
+* align version and first-release logic ([68a8b9e](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/68a8b9e3501eb84c0e1ce3098c71792f751b21ac))
+* avoid empty commit/tag errors ([0b06538](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/0b06538ff4a1a05b2f396cca20150c4681a92b46))
+* clarify credentials requirement ([c48850f](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/c48850f9fce9f1d0a4a42383c4abf148721fd960))
+* correct workflow indentation ([c5ec469](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/c5ec469118730ba606c5df4568e8fc6d2513bd86))
 * dummy commit ([#7](https://github.com/crono-one/n8n-nodes-crono-public-api/issues/7)) ([89553b3](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/89553b342e97340878463b19f94edefbf6ffcc74))
 * Fixed ci ([3b40217](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/3b402171ea2a0b0822686e022e0f415338ed65a9))
 * Fixed ci ([b10d854](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/b10d854ffe86d790bb3e47b7e8f424ffbc90cd4a))
@@ -25,23 +35,4 @@
 * Fixed ci ([7151f85](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/7151f85b7b2a0740487b502b01c71279353b1331))
 * Fixed ci ([29e0ba0](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/29e0ba0cb611faf928a8198e81c8c6fdb1c47688))
 * semantic release OIDC ([6178ae2](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/6178ae208c8d1b924668a9d06a8b5212a22d5438))
-
-## [2.0.5](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v2.0.4...v2.0.5) (2026-01-15)
-
-### Bug Fixes
-
-* Fixed ci ([3b40217](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/3b402171ea2a0b0822686e022e0f415338ed65a9))
-* Fixed ci ([b10d854](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/b10d854ffe86d790bb3e47b7e8f424ffbc90cd4a))
-* semantic release OIDC ([6178ae2](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/6178ae208c8d1b924668a9d06a8b5212a22d5438))
-
-## 0.1.1 (2026-01-12)
-
-### Bug Fixes
-
-* Made repository public as n8n requires
-
-## 0.1.0 (2026-01-12)
-
-### Features
-
-* **core:** first stable release
+* skip npm version when unchanged ([f9dcbbd](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/f9dcbbdf5a951d042d64c6c8c8dd3a6b900f2239))
