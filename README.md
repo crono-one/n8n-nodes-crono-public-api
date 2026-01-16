@@ -34,6 +34,8 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 This node uses Crono Public API credentials.
 
+Credentials are required for all operations.
+
 You need:
 - API Key
 - API Secret
@@ -55,3 +57,5 @@ Tested against n8n version: 1.120.4
 ## Version history
 
 * [CHANGELOG](./CHANGELOG.md)
+
+----
