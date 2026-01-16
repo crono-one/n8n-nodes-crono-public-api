@@ -83,6 +83,11 @@ jobs:
             npm version "$next" --no-git-tag-version
           fi
 
+      - name: Update changelog
+        if: steps.bump.outputs.skip_release != 'true'
+        run: |
+          npx -y conventional-changelog-cli -p conventionalcommits -i CHANGELOG.md -s -r 0
+
       - name: Commit and tag
         if: steps.bump.outputs.skip_release != 'true'
         env:
@@ -90,7 +95,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json
+          git add package.json package-lock.json CHANGELOG.md
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
