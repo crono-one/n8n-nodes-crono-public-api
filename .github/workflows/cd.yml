@@ -68,9 +68,9 @@ jobs:
             esac
             next="$major.$minor.$patch"
           else
-          # First release: use the current package.json version as-is.
-          next="$current"
-        fi
+            # First release: use the current package.json version as-is.
+            next="$current"
+          fi
         if [ "$next" = "$current" ]; then
           echo "Version unchanged ($current). Skipping release."
           echo "skip_release=true" >> "$GITHUB_OUTPUT"
