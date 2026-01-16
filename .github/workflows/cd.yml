@@ -79,7 +79,9 @@ jobs:
             exit 0
           fi
           echo "next_version=$next" >> "$GITHUB_OUTPUT"
-          npm version "$next" --no-git-tag-version
+          if [ "$next" != "$current" ]; then
+            npm version "$next" --no-git-tag-version
+          fi
 
       - name: Commit and tag
         if: steps.bump.outputs.skip_release != 'true'
