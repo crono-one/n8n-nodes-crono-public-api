@@ -7641,7 +7641,7 @@ export class CronoPublicApi implements INodeType {
 			}
 
 			const responseData = await cronoApiRequest.call(this, method, endpoint, qs, body);
-			returnData.push({ json: responseData });
+			returnData.push({ json: responseData, pairedItem: { item: itemIndex } });
 		}
 
 		return [returnData];
