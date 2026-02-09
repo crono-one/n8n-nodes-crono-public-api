@@ -1,3 +1,13 @@
+## [1.0.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v0.1.3...v1.0.0) (2026-02-09)
+
+### ⚠ BREAKING CHANGES
+
+* public API surface is stable and compliant to n8n
+standards.
+
+### Features
+
+* stable 1.0.0 release ([#10](https://github.com/crono-one/n8n-nodes-crono-public-api/issues/10)) ([213d3b2](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/213d3b2eb640b0de2dde6f0a3fb265336fb2bd87))
 ## [0.1.3](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v0.1.2...v0.1.3) (2026-01-16)
 
 ### Bug Fixes
