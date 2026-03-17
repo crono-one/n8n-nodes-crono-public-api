@@ -19,6 +19,7 @@ type CronoResource =
 	| 'list'
 	| 'pipeline'
 	| 'strategy'
+	| 'template'
 	| 'externalProperty'
 	| 'user'
 	| 'import';
@@ -163,6 +164,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Pipeline', value: 'pipeline' },
 					{ name: 'Strategy', value: 'strategy' },
 					{ name: 'Task', value: 'task' },
+					{ name: 'Template', value: 'template' },
 					{ name: 'User', value: 'user' },
 				],
 				default: 'company',
@@ -273,7 +275,21 @@ export class CronoPublicApi implements INodeType {
 				displayOptions: {
 					show: { resource: ['list'] },
 				},
-				options: [{ name: 'Search', value: 'search', action: 'Search lists' }],
+				options: [
+					{ name: 'Add Companies', value: 'addCompanies', action: 'Add companies to a list' },
+					{ name: 'Add Contacts', value: 'addContacts', action: 'Add contacts to a list' },
+					{ name: 'Add Sequences', value: 'addSequences', action: 'Add sequences to a list' },
+					{ name: 'Add Templates', value: 'addTemplates', action: 'Add templates to a list' },
+					{ name: 'Create', value: 'create', action: 'Create a list' },
+					{ name: 'Delete', value: 'delete', action: 'Delete a list' },
+					{ name: 'Get', value: 'get', action: 'Get a list' },
+					{ name: 'Remove Companies', value: 'removeCompanies', action: 'Remove companies from a list' },
+					{ name: 'Remove Contacts', value: 'removeContacts', action: 'Remove contacts from a list' },
+					{ name: 'Remove Sequences', value: 'removeSequences', action: 'Remove sequences from a list' },
+					{ name: 'Remove Templates', value: 'removeTemplates', action: 'Remove templates from a list' },
+					{ name: 'Search', value: 'search', action: 'Search lists' },
+					{ name: 'Update', value: 'update', action: 'Update a list' },
+				],
 				default: 'search',
 			},
 			{
@@ -296,8 +312,32 @@ export class CronoPublicApi implements INodeType {
 					show: { resource: ['strategy'] },
 				},
 				options: [
+					{
+						name: 'Add Contacts',
+						value: 'addContacts',
+						action: 'Add contacts to a strategy',
+					},
 					{ name: 'Search', value: 'search', action: 'Search strategies' },
 					{ name: 'Search Details', value: 'searchDetails', action: 'Search strategy details' },
+					{
+						name: 'Stop Contact Sequence',
+						value: 'stopContactSequence',
+						action: 'Stop sequence for a contact',
+					},
+				],
+				default: 'search',
+			},
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: { resource: ['template'] },
+				},
+				options: [
+					{ name: 'Get', value: 'get', action: 'Get a template' },
+					{ name: 'Search', value: 'search', action: 'Search templates' },
 				],
 				default: 'search',
 			},
@@ -349,7 +389,20 @@ export class CronoPublicApi implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'activity'],
+						resource: ['company', 'contact', 'deal', 'note', 'activity', 'template'],
+						operation: ['get'],
+					},
+				},
+			},
+			{
+				displayName: 'List ID',
+				name: 'listId',
+				type: 'number',
+				default: 0,
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['list'],
 						operation: ['get'],
 					},
 				},
@@ -436,6 +489,7 @@ export class CronoPublicApi implements INodeType {
 							'activity',
 							'list',
 							'strategy',
+							'template',
 							'externalProperty',
 							'user',
 							'task',
@@ -460,6 +514,7 @@ export class CronoPublicApi implements INodeType {
 							'activity',
 							'list',
 							'strategy',
+							'template',
 							'externalProperty',
 							'user',
 							'task',
@@ -477,8 +532,8 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task'],
-						operation: ['create', 'update', 'import'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 					},
 				},
 				description: 'Whether to send a raw JSON data payload',
@@ -490,8 +545,8 @@ export class CronoPublicApi implements INodeType {
 				default: {},
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task'],
-						operation: ['create', 'update', 'import'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 						useRawJsonData: [true],
 					},
 				},
@@ -508,8 +563,8 @@ export class CronoPublicApi implements INodeType {
 				default: [],
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task'],
-						operation: ['create', 'update', 'import'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 						useRawJsonData: [false],
 					},
 				},
@@ -548,6 +603,7 @@ export class CronoPublicApi implements INodeType {
 							'activity',
 							'list',
 							'strategy',
+							'template',
 							'externalProperty',
 							'user',
 							'task',
@@ -766,8 +822,8 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Owner ID',
-				name: 'companyCreateOwnerId',
+				displayName: 'User ID',
+				name: 'companyCreateUserId',
 				type: 'string',
 				default: '',
 				displayOptions: {
@@ -779,10 +835,10 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'User ID',
-				name: 'companyCreateUserId',
-				type: 'number',
-				default: 0,
+				displayName: 'Generate AI Variables (JSON)',
+				name: 'companyCreateGenerateAiVariables',
+				type: 'json',
+				default: {},
 				displayOptions: {
 					show: {
 						resource: ['company'],
@@ -790,6 +846,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
+				description: 'Generate AI variables request payload',
 			},
 			{
 				displayName: 'Name',
@@ -932,8 +989,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'companyUpdateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['company'],
@@ -1458,8 +1515,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'contactCreateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['contact'],
@@ -1624,8 +1681,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'contactUpdateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['contact'],
@@ -2008,8 +2065,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'dealCreateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['deal'],
@@ -2167,8 +2224,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'dealUpdateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['deal'],
@@ -2259,7 +2316,6 @@ export class CronoPublicApi implements INodeType {
 				name: 'taskCreateProspectId',
 				type: 'string',
 				default: '',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['task'],
@@ -2310,7 +2366,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Subtype',
 				name: 'taskCreateSubtype',
 				type: 'options',
-				default: 'LinkedinInvitation',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['task'],
@@ -2324,6 +2380,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'LinkedIn Message', value: 'LinkedinMessage' },
 					{ name: 'LinkedIn Profile View', value: 'LinkedinProfileView' },
 					{ name: 'LinkedIn Voice Note', value: 'LinkedinVoiceNote' },
+					{ name: 'None', value: '' },
 				],
 				description: 'Task subtype',
 			},
@@ -2367,6 +2424,20 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Opportunity ID linked to the task',
+			},
+			{
+				displayName: 'Assign To User',
+				name: 'taskCreateAssignToUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Whether the task should be assigned to the selected user',
 			},
 			{
 				displayName: 'Subject',
@@ -2518,7 +2589,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Type',
 				name: 'taskSearchType',
 				type: 'options',
-				default: 'Generic',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['task'],
@@ -2532,6 +2603,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Generic', value: 'Generic' },
 					{ name: 'InMail', value: 'InMail' },
 					{ name: 'LinkedIn', value: 'Linkedin' },
+					{ name: 'None', value: '' },
 				],
 				description: 'Task type',
 			},
@@ -2539,7 +2611,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Subtype',
 				name: 'taskSearchSubtype',
 				type: 'options',
-				default: 'LinkedinInvitation',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['task'],
@@ -2553,6 +2625,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'LinkedIn Message', value: 'LinkedinMessage' },
 					{ name: 'LinkedIn Profile View', value: 'LinkedinProfileView' },
 					{ name: 'LinkedIn Voice Note', value: 'LinkedinVoiceNote' },
+					{ name: 'None', value: '' },
 				],
 				description: 'Task subtype',
 			},
@@ -2576,6 +2649,27 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'LinkedIn', value: 'Linkedin' },
 				],
 				description: 'Task types',
+			},
+			{
+				displayName: 'Subtypes',
+				name: 'taskSearchSubtypes',
+				type: 'multiOptions',
+				default: [],
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'LinkedIn Invitation', value: 'LinkedinInvitation' },
+					{ name: 'LinkedIn Like Last Post', value: 'LinkedinLikeLastPost' },
+					{ name: 'LinkedIn Message', value: 'LinkedinMessage' },
+					{ name: 'LinkedIn Profile View', value: 'LinkedinProfileView' },
+					{ name: 'LinkedIn Voice Note', value: 'LinkedinVoiceNote' },
+				],
+				description: 'Task subtypes',
 			},
 			{
 				displayName: 'Since',
@@ -2803,6 +2897,86 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Lead external property filters',
+			},
+			{
+				displayName: 'With Prospect Score',
+				name: 'taskSearchWithProspectScore',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'With Account Score',
+				name: 'taskSearchWithAccountScore',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Lead Score Levels',
+				name: 'taskSearchLeadScoreLevels',
+				type: 'multiOptions',
+				default: [],
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'High', value: 'High' },
+					{ name: 'Low', value: 'Low' },
+					{ name: 'Medium', value: 'Medium' },
+				],
+			},
+			{
+				displayName: 'Prospect Score Levels',
+				name: 'taskSearchProspectScoreLevels',
+				type: 'multiOptions',
+				default: [],
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'High', value: 'High' },
+					{ name: 'Low', value: 'Low' },
+					{ name: 'Medium', value: 'Medium' },
+				],
+			},
+			{
+				displayName: 'Account Score Levels',
+				name: 'taskSearchAccountScoreLevels',
+				type: 'multiOptions',
+				default: [],
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'High', value: 'High' },
+					{ name: 'Low', value: 'Low' },
+					{ name: 'Medium', value: 'Medium' },
+				],
 			},
 			{
 				displayName: 'Name',
@@ -3268,8 +3442,21 @@ export class CronoPublicApi implements INodeType {
 				},			
 			},
 			{
-				displayName: 'Include Tasks',
+				displayName: 'Include Tasks Analytics',
 				name: 'companySearchIncludeTasks',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'companySearchIncludeUser',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
@@ -3325,8 +3512,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'contactSearchUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['contact'],
@@ -3963,7 +4150,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Owner user ID',
 			},
 			{
-				displayName: 'Stage',
+				displayName: 'Stages',
 				name: 'dealSearchStage',
 				type: 'string',
 				default: '',
@@ -3974,7 +4161,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Deal stage',
+				description: 'Comma-separated list of deal stages',
 			},
 			{
 				displayName: 'Pipeline',
@@ -3989,20 +4176,6 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Deal pipeline',
-			},
-			{
-				displayName: 'Object IDs',
-				name: 'dealSearchObjectIds',
-				type: 'string',
-				default: '',
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-				description: 'Comma-separated list of deal object IDs',
 			},
 			{
 				displayName: 'Limit',
@@ -4092,6 +4265,34 @@ export class CronoPublicApi implements INodeType {
 				description: 'Maximum last modified date',
 			},
 			{
+				displayName: 'Last Activity Date Min',
+				name: 'dealSearchLastActivityDateMin',
+				type: 'dateTime',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Minimum last activity date',
+			},
+			{
+				displayName: 'Last Activity Date Max',
+				name: 'dealSearchLastActivityDateMax',
+				type: 'dateTime',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Maximum last activity date',
+			},
+			{
 				displayName: 'Close Date Min',
 				name: 'dealSearchCloseDateMin',
 				type: 'dateTime',
@@ -4118,73 +4319,6 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Maximum close date',
-			},
-			{
-				displayName: 'Is Closed',
-				name: 'dealSearchIsClosed',
-				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-			},
-			{
-				displayName: 'Is Won',
-				name: 'dealSearchIsWon',
-				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-			},
-			{
-				displayName: 'Amount Min',
-				name: 'dealSearchAmountMin',
-				type: 'number',
-				default: 0,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-				description: 'Minimum amount',
-			},
-			{
-				displayName: 'Amount Max',
-				name: 'dealSearchAmountMax',
-				type: 'number',
-				default: 0,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-				description: 'Maximum amount',
-			},
-			{
-				displayName: 'Active',
-				name: 'dealSearchActive',
-				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
 			},
 			{
 				displayName: 'Year',
@@ -4251,6 +4385,32 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'Include Account',
 				name: 'dealSearchIncludeAccount',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include External Values',
+				name: 'dealSearchIncludeExternalValues',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'dealSearchIncludeUser',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
@@ -4421,6 +4581,19 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'Active',
 				name: 'noteSearchActive',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['note'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'noteSearchIncludeUser',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
@@ -4759,6 +4932,19 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
+				displayName: 'Include User',
+				name: 'activitySearchIncludeUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['activity'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
 				displayName: 'Include Account',
 				name: 'activitySearchIncludeAccount',
 				type: 'boolean',
@@ -4813,6 +4999,19 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'Include Opportunity',
 				name: 'activitySearchIncludeOpportunity',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['activity'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include Template Title',
+				name: 'activitySearchIncludeTemplateTitle',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
@@ -5455,6 +5654,20 @@ export class CronoPublicApi implements INodeType {
 				description: 'User email',
 			},
 			{
+				displayName: 'Name',
+				name: 'userSearchName',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['user'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'User name',
+			},
+			{
 				displayName: 'Active',
 				name: 'userSearchActive',
 				type: 'boolean',
@@ -5493,6 +5706,430 @@ export class CronoPublicApi implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['user'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Number of results to skip',
+			},
+			{
+				displayName: 'Name',
+				name: 'listCreateName',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'List name',
+			},
+			{
+				displayName: 'Type',
+				name: 'listCreateType',
+				type: 'options',
+				default: 'Account',
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				options: [
+					{ name: 'Account', value: 'Account' },
+					{ name: 'Lead', value: 'Lead' },
+					{ name: 'Prospect', value: 'Prospect' },
+					{ name: 'Strategy', value: 'Strategy' },
+					{ name: 'Template', value: 'Template' },
+				],
+				description: 'List table type',
+			},
+			{
+				displayName: 'Shared',
+				name: 'listCreateShared',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Whether the list is shared',
+			},
+			{
+				displayName: 'Shared Users IDs',
+				name: 'listCreateSharedUsersIds',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Comma-separated user IDs to share the list with',
+			},
+			{
+				displayName: 'Object IDs',
+				name: 'listCreateObjectIds',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Comma-separated object IDs for Account/Prospect lists',
+			},
+			{
+				displayName: 'IDs',
+				name: 'listCreateIds',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Comma-separated numeric IDs for Template/Strategy lists',
+			},
+			{
+				displayName: 'List ID',
+				name: 'listUpdateId',
+				type: 'number',
+				default: 0,
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['update'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'ID of the list to update',
+			},
+			{
+				displayName: 'Name',
+				name: 'listUpdateName',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['update'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'New list name',
+			},
+			{
+				displayName: 'Shared',
+				name: 'listUpdateShared',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['update'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Whether the list is shared',
+			},
+			{
+				displayName: 'Shared Users IDs',
+				name: 'listUpdateSharedUsersIds',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['update'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Comma-separated user IDs to share the list with',
+			},
+			{
+				displayName: 'List ID',
+				name: 'listDeleteListId',
+				type: 'number',
+				default: 0,
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['delete'],
+					},
+				},
+				description: 'ID of the list to delete',
+			},
+			{
+				displayName: 'List ID',
+				name: 'listEntityListId',
+				type: 'number',
+				default: 0,
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: [
+							'addContacts',
+							'removeContacts',
+							'addCompanies',
+							'removeCompanies',
+							'addTemplates',
+							'removeTemplates',
+							'addSequences',
+							'removeSequences',
+						],
+					},
+				},
+				description: 'Target list ID',
+			},
+			{
+				displayName: 'Object IDs',
+				name: 'listEntityObjectIds',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['addContacts', 'removeContacts', 'addCompanies', 'removeCompanies'],
+					},
+				},
+				description: 'Comma-separated object IDs',
+			},
+			{
+				displayName: 'IDs',
+				name: 'listEntityIds',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['list'],
+						operation: ['addTemplates', 'removeTemplates', 'addSequences', 'removeSequences'],
+					},
+				},
+				description: 'Comma-separated numeric IDs',
+			},
+			{
+				displayName: 'Strategy ID',
+				name: 'strategyAddContactsStrategyId',
+				type: 'number',
+				default: 0,
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['strategy'],
+						operation: ['addContacts'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Strategy ID to enroll contacts into',
+			},
+			{
+				displayName: 'Prospect IDs',
+				name: 'strategyAddContactsProspectIds',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['strategy'],
+						operation: ['addContacts'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Comma-separated prospect object IDs',
+			},
+			{
+				displayName: 'Prospect ID',
+				name: 'strategyStopContactProspectId',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['strategy'],
+						operation: ['stopContactSequence'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Prospect object ID whose sequence must be stopped',
+			},
+			{
+				displayName: 'Title',
+				name: 'templateSearchTitle',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Template title filter',
+			},
+			{
+				displayName: 'Type',
+				name: 'templateSearchType',
+				type: 'options',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'All', value: '' },
+					{ name: 'Email', value: 'Email' },
+					{ name: 'In Mail', value: 'InMail' },
+					{ name: 'Invitation', value: 'Invitation' },
+					{ name: 'Linkedin', value: 'Linkedin' },
+					{ name: 'Script', value: 'Script' },
+					{ name: 'Voice Note', value: 'VoiceNote' },
+				],
+				description: 'Template type filter',
+			},
+			{
+				displayName: 'Language',
+				name: 'templateSearchLanguage',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Language filter',
+			},
+			{
+				displayName: 'Shared',
+				name: 'templateSearchShared',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Whether template is shared',
+			},
+			{
+				displayName: 'Archived',
+				name: 'templateSearchArchived',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Whether template is archived',
+			},
+			{
+				displayName: 'User ID',
+				name: 'templateSearchUserId',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Owner user ID filter',
+			},
+			{
+				displayName: 'Include User',
+				name: 'templateSearchIncludeUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Whether to include template owner user',
+			},
+			{
+				displayName: 'Include Template Tags',
+				name: 'templateSearchIncludeTemplateTags',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Whether to include template tags',
+			},
+			{
+				displayName: 'Include Lists',
+				name: 'templateSearchIncludeCronoLists',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Whether to include linked lists',
+			},
+			{
+				displayName: 'Limit',
+				name: 'templateSearchLimit',
+				type: 'number',
+				typeOptions: {
+					minValue: 1,
+				},
+				default: 50,
+				displayOptions: {
+					show: {
+						resource: ['template'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Max number of results to return',
+			},
+			{
+				displayName: 'Offset',
+				name: 'templateSearchOffset',
+				type: 'number',
+				default: 0,
+				displayOptions: {
+					show: {
+						resource: ['template'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5747,7 +6384,10 @@ export class CronoPublicApi implements INodeType {
 								includes.WithTags = true;
 							}
 							if (this.getNodeParameter('companySearchIncludeTasks', itemIndex, false)) {
-								includes.WithTasks = true;
+								includes.WithTasksAnalytics = true;
+							}
+							if (this.getNodeParameter('companySearchIncludeUser', itemIndex, false)) {
+								includes.WithUser = true;
 							}
 							if (Object.keys(includes).length) {
 								searchBody.Includes = includes;
@@ -5837,16 +6477,21 @@ export class CronoPublicApi implements INodeType {
 							}
 							addIfNotEmpty(
 								data,
-								'OwnerId',
-								this.getNodeParameter('companyCreateOwnerId', itemIndex, ''),
+								'UserId',
+								this.getNodeParameter('companyCreateUserId', itemIndex, ''),
 							);
-							const userId = this.getNodeParameter('companyCreateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
 							const listId = this.getNodeParameter('companyCreateListId', itemIndex, 0) as number;
 							if (listId) {
 								data.ListId = listId;
+							}
+							const generateAiVariables = getJsonParameter(
+								this,
+								'companyCreateGenerateAiVariables',
+								itemIndex,
+								{},
+							);
+							if (Object.keys(generateAiVariables).length) {
+								data.GenerateAiVariables = generateAiVariables;
 							}
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
@@ -5915,10 +6560,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(externalValues).length) {
 								data.ExternalValues = externalValues;
 							}
-							const userId = this.getNodeParameter('companyUpdateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('companyUpdateUserId', itemIndex, ''),
+							);
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
@@ -6031,10 +6677,11 @@ export class CronoPublicApi implements INodeType {
 							if (objectIds.length) {
 								searchBody.ObjectIds = objectIds;
 							}
-							const userId = this.getNodeParameter('contactSearchUserId', itemIndex, 0) as number;
-							if (userId) {
-								searchBody.UserId = userId;
-							}
+							addIfNotEmpty(
+								searchBody,
+								'UserId',
+								this.getNodeParameter('contactSearchUserId', itemIndex, ''),
+							);
 							addIfNotEmpty(
 								searchBody,
 								'Industry',
@@ -6386,10 +7033,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(generateAiVariables).length) {
 								data.GenerateAiVariables = generateAiVariables;
 							}
-							const userId = this.getNodeParameter('contactCreateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('contactCreateUserId', itemIndex, ''),
+							);
 							addIfNotEmpty(
 								data,
 								'CountryCode',
@@ -6466,10 +7114,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(externalValues).length) {
 								data.ExternalValues = externalValues;
 							}
-							const userId = this.getNodeParameter('contactUpdateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('contactUpdateUserId', itemIndex, ''),
+							);
 							addIfNotEmpty(
 								data,
 								'CountryCode',
@@ -6605,19 +7254,14 @@ export class CronoPublicApi implements INodeType {
 							);
 							addIfNotEmpty(
 								searchBody,
-								'Stage',
-								this.getNodeParameter('dealSearchStage', itemIndex, ''),
-							);
-							addIfNotEmpty(
-								searchBody,
 								'Pipeline',
 								this.getNodeParameter('dealSearchPipeline', itemIndex, ''),
 							);
-							const objectIds = parseCsv(
-								this.getNodeParameter('dealSearchObjectIds', itemIndex, '') as string,
+							const stages = parseCsv(
+								this.getNodeParameter('dealSearchStage', itemIndex, '') as string,
 							);
-							if (objectIds.length) {
-								searchBody.ObjectIds = objectIds;
+							if (stages.length) {
+								searchBody.Stages = stages;
 							}
 							const pagination: IDataObject = {};
 							addIfNotEmpty(
@@ -6655,6 +7299,16 @@ export class CronoPublicApi implements INodeType {
 							);
 							addIfNotEmpty(
 								searchBody,
+								'LastActivityDateMin',
+								this.getNodeParameter('dealSearchLastActivityDateMin', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'LastActivityDateMax',
+								this.getNodeParameter('dealSearchLastActivityDateMax', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
 								'CloseDateMin',
 								this.getNodeParameter('dealSearchCloseDateMin', itemIndex, ''),
 							);
@@ -6663,23 +7317,6 @@ export class CronoPublicApi implements INodeType {
 								'CloseDateMax',
 								this.getNodeParameter('dealSearchCloseDateMax', itemIndex, ''),
 							);
-							if (this.getNodeParameter('dealSearchIsWon', itemIndex, false)) {
-								searchBody.IsWon = true;
-							}
-							if (this.getNodeParameter('dealSearchIsClosed', itemIndex, false)) {
-								searchBody.IsClosed = true;
-							}
-							const amountMin = this.getNodeParameter('dealSearchAmountMin', itemIndex, 0) as number;
-							if (amountMin) {
-								searchBody.AmountMin = amountMin;
-							}
-							const amountMax = this.getNodeParameter('dealSearchAmountMax', itemIndex, 0) as number;
-							if (amountMax) {
-								searchBody.AmountMax = amountMax;
-							}
-							if (this.getNodeParameter('dealSearchActive', itemIndex, false)) {
-								searchBody.Active = true;
-							}
 							const year = this.getNodeParameter('dealSearchYear', itemIndex, 0) as number;
 							if (year) {
 								searchBody.Year = year;
@@ -6701,6 +7338,12 @@ export class CronoPublicApi implements INodeType {
 							const includes: IDataObject = {};
 							if (this.getNodeParameter('dealSearchIncludeAccount', itemIndex, false)) {
 								includes.WithAccount = true;
+							}
+							if (this.getNodeParameter('dealSearchIncludeExternalValues', itemIndex, false)) {
+								includes.WithExternalValues = true;
+							}
+							if (this.getNodeParameter('dealSearchIncludeUser', itemIndex, false)) {
+								includes.WithUser = true;
 							}
 							if (Object.keys(includes).length) {
 								searchBody.Includes = includes;
@@ -6757,10 +7400,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(externalValues).length) {
 								data.ExternalValues = externalValues;
 							}
-							const userId = this.getNodeParameter('dealCreateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('dealCreateUserId', itemIndex, ''),
+							);
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
@@ -6819,10 +7463,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(externalValues).length) {
 								data.ExternalValues = externalValues;
 							}
-							const userId = this.getNodeParameter('dealUpdateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('dealUpdateUserId', itemIndex, ''),
+							);
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
@@ -6911,6 +7556,9 @@ export class CronoPublicApi implements INodeType {
 								searchBody.Active = true;
 							}
 							const includes: IDataObject = {};
+							if (this.getNodeParameter('noteSearchIncludeUser', itemIndex, false)) {
+								includes.WithUser = true;
+							}
 							if (this.getNodeParameter('noteSearchIncludeAccount', itemIndex, false)) {
 								includes.WithAccount = true;
 							}
@@ -7010,6 +7658,10 @@ export class CronoPublicApi implements INodeType {
 							if (types.length) {
 								searchBody.Types = types;
 							}
+							const subtypes = this.getNodeParameter('taskSearchSubtypes', itemIndex, []) as string[];
+							if (subtypes.length) {
+								searchBody.Subtypes = subtypes;
+							}
 							addIfNotEmpty(
 								searchBody,
 								'Since',
@@ -7104,6 +7756,36 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(leadExternalProperties).length) {
 								searchBody.LeadExternalProperties = leadExternalProperties;
 							}
+							if (this.getNodeParameter('taskSearchWithProspectScore', itemIndex, false)) {
+								searchBody.WithProspectScore = true;
+							}
+							if (this.getNodeParameter('taskSearchWithAccountScore', itemIndex, false)) {
+								searchBody.WithAccountScore = true;
+							}
+							const leadScoreLevels = this.getNodeParameter(
+								'taskSearchLeadScoreLevels',
+								itemIndex,
+								[],
+							) as string[];
+							if (leadScoreLevels.length) {
+								searchBody.LeadScoreLevels = leadScoreLevels;
+							}
+							const prospectScoreLevels = this.getNodeParameter(
+								'taskSearchProspectScoreLevels',
+								itemIndex,
+								[],
+							) as string[];
+							if (prospectScoreLevels.length) {
+								searchBody.ProspectScoreLevels = prospectScoreLevels;
+							}
+							const accountScoreLevels = this.getNodeParameter(
+								'taskSearchAccountScoreLevels',
+								itemIndex,
+								[],
+							) as string[];
+							if (accountScoreLevels.length) {
+								searchBody.AccountScoreLevels = accountScoreLevels;
+							}
 							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
 							body = searchBody;
 						}
@@ -7142,14 +7824,15 @@ export class CronoPublicApi implements INodeType {
 							if (templateId) {
 								data.TemplateId = templateId;
 							}
-							if (this.getNodeParameter('taskCreateAutomatic', itemIndex, false)) {
-								data.Automatic = true;
-							}
+							data.Automatic = this.getNodeParameter('taskCreateAutomatic', itemIndex, false) as boolean;
 							addIfNotEmpty(
 								data,
 								'OpportunityId',
 								this.getNodeParameter('taskCreateOpportunityId', itemIndex, ''),
 							);
+							if (this.getNodeParameter('taskCreateAssignToUser', itemIndex, false)) {
+								data.AssignToUser = true;
+							}
 							addIfNotEmpty(
 								data,
 								'Subject',
@@ -7302,6 +7985,9 @@ export class CronoPublicApi implements INodeType {
 								searchBody.CronoObjectId = cronoObjectId;
 							}
 							const includes: IDataObject = {};
+							if (this.getNodeParameter('activitySearchIncludeUser', itemIndex, false)) {
+								includes.WithUser = true;
+							}
 							if (this.getNodeParameter('activitySearchIncludeAccount', itemIndex, false)) {
 								includes.WithAccount = true;
 							}
@@ -7320,6 +8006,9 @@ export class CronoPublicApi implements INodeType {
 							if (this.getNodeParameter('activitySearchIncludeOpportunity', itemIndex, false)) {
 								includes.WithOpportunity = true;
 							}
+							if (this.getNodeParameter('activitySearchIncludeTemplateTitle', itemIndex, false)) {
+								includes.WithTemplateTitle = true;
+							}
 							if (Object.keys(includes).length) {
 								searchBody.Include = includes;
 							}
@@ -7330,61 +8019,155 @@ export class CronoPublicApi implements INodeType {
 					break;
 				}
 				case 'list': {
-					method = 'POST';
-					endpoint = `${basePath}/CronoLists/search`;
-					if (useRawJsonSearch) {
-						body = getJsonParameter(this, 'search', itemIndex);
-					} else {
-						const searchBody: IDataObject = {};
-						addIfNotEmpty(
-							searchBody,
-							'Name',
-							this.getNodeParameter('listSearchName', itemIndex, ''),
-						);
-						addIfNotEmpty(
-							searchBody,
-							'AccountId',
-							this.getNodeParameter('listSearchAccountId', itemIndex, ''),
-						);
-						addIfNotEmpty(
-							searchBody,
-							'ProspectId',
-							this.getNodeParameter('listSearchProspectId', itemIndex, ''),
-						);
-						const strategyId = this.getNodeParameter('listSearchStrategyId', itemIndex, 0) as number;
-						if (strategyId) {
-							searchBody.StrategyId = strategyId;
+					endpoint = `${basePath}/CronoLists`;
+					if (operation === 'get') {
+						method = 'GET';
+						const listId = this.getNodeParameter('listId', itemIndex) as number;
+						endpoint = `${endpoint}/${listId}`;
+					} else if (operation === 'search') {
+						method = 'POST';
+						endpoint = `${endpoint}/search`;
+						if (useRawJsonSearch) {
+							body = getJsonParameter(this, 'search', itemIndex);
+						} else {
+							const searchBody: IDataObject = {};
+							addIfNotEmpty(
+								searchBody,
+								'Name',
+								this.getNodeParameter('listSearchName', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'AccountId',
+								this.getNodeParameter('listSearchAccountId', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'ProspectId',
+								this.getNodeParameter('listSearchProspectId', itemIndex, ''),
+							);
+							const strategyId = this.getNodeParameter('listSearchStrategyId', itemIndex, 0) as number;
+							if (strategyId) {
+								searchBody.StrategyId = strategyId;
+							}
+							const templateId = this.getNodeParameter('listSearchTemplateId', itemIndex, 0) as number;
+							if (templateId) {
+								searchBody.TemplateId = templateId;
+							}
+							const pagination: IDataObject = {};
+							addIfNotEmpty(
+								pagination,
+								'Limit',
+								this.getNodeParameter('listSearchLimit', itemIndex, 50),
+							);
+							addIfNotEmpty(
+								pagination,
+								'Offset',
+								this.getNodeParameter('listSearchOffset', itemIndex, 0),
+							);
+							if (Object.keys(pagination).length) {
+								searchBody.Pagination = pagination;
+							}
+							addIfNotEmpty(
+								searchBody,
+								'Type',
+								this.getNodeParameter('listSearchType', itemIndex, 'Account'),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'SortType',
+								this.getNodeParameter('listSearchSortType', itemIndex, ''),
+							);
+							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							body = searchBody;
 						}
-						const templateId = this.getNodeParameter('listSearchTemplateId', itemIndex, 0) as number;
-						if (templateId) {
-							searchBody.TemplateId = templateId;
+					} else if (operation === 'create') {
+						method = 'POST';
+						const data: IDataObject = useRawJsonData
+							? getJsonParameter(this, 'data', itemIndex)
+							: {};
+						if (!useRawJsonData) {
+							addIfNotEmpty(
+								data,
+								'Name',
+								this.getNodeParameter('listCreateName', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								data,
+								'Type',
+								this.getNodeParameter('listCreateType', itemIndex, 'Account'),
+							);
+							if (this.getNodeParameter('listCreateShared', itemIndex, false)) {
+								data.Shared = true;
+							}
+							const sharedUsersIds = parseCsv(
+								this.getNodeParameter('listCreateSharedUsersIds', itemIndex, '') as string,
+							);
+							if (sharedUsersIds.length) {
+								data.SharedUsersIds = sharedUsersIds.map((id) => parseInt(id, 10));
+							}
+							const objectIds = parseCsv(
+								this.getNodeParameter('listCreateObjectIds', itemIndex, '') as string,
+							);
+							if (objectIds.length) {
+								data.ObjectIds = objectIds;
+							}
+							const ids = parseCsv(this.getNodeParameter('listCreateIds', itemIndex, '') as string);
+							if (ids.length) {
+								data.Ids = ids.map((id) => parseInt(id, 10));
+							}
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
-						const pagination: IDataObject = {};
-						addIfNotEmpty(
-							pagination,
-							'Limit',
-							this.getNodeParameter('listSearchLimit', itemIndex, 50),
-						);
-						addIfNotEmpty(
-							pagination,
-							'Offset',
-							this.getNodeParameter('listSearchOffset', itemIndex, 0),
-						);
-						if (Object.keys(pagination).length) {
-							searchBody.Pagination = pagination;
+						body = { data };
+					} else if (operation === 'update') {
+						method = 'PATCH';
+						const data: IDataObject = useRawJsonData
+							? getJsonParameter(this, 'data', itemIndex)
+							: {};
+						if (!useRawJsonData) {
+							const listUpdateId = this.getNodeParameter('listUpdateId', itemIndex, 0) as number;
+							if (listUpdateId) {
+								data.Id = listUpdateId;
+							}
+							addIfNotEmpty(
+								data,
+								'Name',
+								this.getNodeParameter('listUpdateName', itemIndex, ''),
+							);
+							if (this.getNodeParameter('listUpdateShared', itemIndex, false)) {
+								data.Shared = true;
+							}
+							const sharedUsersIds = parseCsv(
+								this.getNodeParameter('listUpdateSharedUsersIds', itemIndex, '') as string,
+							);
+							if (sharedUsersIds.length) {
+								data.SharedUsersIds = sharedUsersIds.map((id) => parseInt(id, 10));
+							}
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
-						addIfNotEmpty(
-							searchBody,
-							'Type',
-							this.getNodeParameter('listSearchType', itemIndex, 'Account'),
+						body = { data };
+					} else if (operation === 'delete') {
+						method = 'DELETE';
+						const listId = this.getNodeParameter('listDeleteListId', itemIndex, 0) as number;
+						body = { listId };
+					} else if (
+						['addContacts', 'removeContacts', 'addCompanies', 'removeCompanies'].includes(operation)
+					) {
+						method = operation.startsWith('remove') ? 'DELETE' : 'POST';
+						endpoint = `${endpoint}/${operation.includes('Contacts') ? 'Prospect' : 'Account'}`;
+						const listId = this.getNodeParameter('listEntityListId', itemIndex, 0) as number;
+						const objectIds = parseCsv(
+							this.getNodeParameter('listEntityObjectIds', itemIndex, '') as string,
 						);
-						addIfNotEmpty(
-							searchBody,
-							'SortType',
-							this.getNodeParameter('listSearchSortType', itemIndex, ''),
-						);
-						Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
-						body = searchBody;
+						body = { listId, objectIds };
+					} else if (
+						['addTemplates', 'removeTemplates', 'addSequences', 'removeSequences'].includes(operation)
+					) {
+						method = operation.startsWith('remove') ? 'DELETE' : 'POST';
+						endpoint = `${endpoint}/${operation.includes('Templates') ? 'Template' : 'Strategy'}`;
+						const listId = this.getNodeParameter('listEntityListId', itemIndex, 0) as number;
+						const ids = parseCsv(this.getNodeParameter('listEntityIds', itemIndex, '') as string);
+						body = { listId, ids: ids.map((id) => parseInt(id, 10)) };
 					}
 					break;
 				}
@@ -7394,143 +8177,257 @@ export class CronoPublicApi implements INodeType {
 					break;
 				}
 				case 'strategy': {
-					method = 'POST';
-					endpoint = `${basePath}/Strategies/${operation === 'searchDetails' ? 'details' : 'search'}`;
-					if (useRawJsonSearch) {
-						body = getJsonParameter(this, 'search', itemIndex);
-					} else if (operation === 'searchDetails') {
-						const searchBody: IDataObject = {};
-						const strategyId = this.getNodeParameter(
-							'strategyDetailsStrategyId',
-							itemIndex,
-							0,
-						) as number;
-						searchBody.StrategyId = strategyId;
-						addIfNotEmpty(
-							searchBody,
-							'Text',
-							this.getNodeParameter('strategyDetailsText', itemIndex, ''),
-						);
-						const pagination: IDataObject = {};
-						addIfNotEmpty(
-							pagination,
-							'Limit',
-							this.getNodeParameter('strategyDetailsLimit', itemIndex, 50),
-						);
-						addIfNotEmpty(
-							pagination,
-							'Offset',
-							this.getNodeParameter('strategyDetailsOffset', itemIndex, 0),
-						);
-						if (Object.keys(pagination).length) {
-							searchBody.Pagination = pagination;
-						}
-						addIfNotEmpty(
-							searchBody,
-							'Sort',
-							this.getNodeParameter('strategyDetailsSort', itemIndex, 'ContactsAsc'),
-						);
-						addIfNotEmpty(
-							searchBody,
-							'Status',
-							this.getNodeParameter('strategyDetailsStatus', itemIndex, ''),
-						);
-						const onlySpecificTask = this.getNodeParameter(
-							'strategyDetailsOnlySpecificTask',
-							itemIndex,
-							[],
-						) as string[];
-						if (onlySpecificTask.length) {
-							searchBody.OnlySpecificTask = onlySpecificTask;
-						}
-						if (this.getNodeParameter('strategyDetailsOnlyMySequences', itemIndex, false)) {
-							searchBody.OnlyMySequences = true;
-						}
-						if (this.getNodeParameter('strategyDetailsOnlyMyProspects', itemIndex, false)) {
-							searchBody.OnlyMyProspects = true;
-						}
-						Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
-						body = searchBody;
-					} else {
-						const searchBody: IDataObject = {};
-						addIfNotEmpty(
-							searchBody,
-							'Name',
-							this.getNodeParameter('strategySearchName', itemIndex, ''),
-						);
-						addIfNotEmpty(
-							searchBody,
-							'AccountId',
-							this.getNodeParameter('strategySearchAccountId', itemIndex, ''),
-						);
-						addIfNotEmpty(
-							searchBody,
-							'ProspectId',
-							this.getNodeParameter('strategySearchProspectId', itemIndex, ''),
-						);
-						addIfNotEmpty(
-							searchBody,
-							'UserId',
-							this.getNodeParameter('strategySearchUserId', itemIndex, ''),
-						);
-						const ids = parseCsv(
-							this.getNodeParameter('strategySearchIds', itemIndex, '') as string,
-						);
-						if (ids.length) {
-							searchBody.Ids = ids;
-						}
-						const pagination: IDataObject = {};
-						addIfNotEmpty(
-							pagination,
-							'Limit',
-							this.getNodeParameter('strategySearchLimit', itemIndex, 50),
-						);
-						addIfNotEmpty(
-							pagination,
-							'Offset',
-							this.getNodeParameter('strategySearchOffset', itemIndex, 0),
-						);
-						if (Object.keys(pagination).length) {
-							searchBody.Pagination = pagination;
-						}
-						addIfNotEmpty(
-							searchBody,
-							'Sort',
-							this.getNodeParameter('strategySearchSort', itemIndex, ''),
-						);
-						const strategyTags = getJsonParameter(
-							this,
-							'strategySearchTags',
-							itemIndex,
-							{},
-						);
-						if (Object.keys(strategyTags).length) {
-							searchBody.StrategyTags = strategyTags;
-						}
-						const includeOptions: IDataObject = {};
-						if (
-							this.getNodeParameter(
-								'strategySearchIncludeActiveSequenceInstances',
+					endpoint = `${basePath}/Strategies`;
+					if (operation === 'addContacts') {
+						method = 'POST';
+						endpoint = `${endpoint}/prospects`;
+						const data: IDataObject = useRawJsonData
+							? getJsonParameter(this, 'data', itemIndex)
+							: {};
+						if (!useRawJsonData) {
+							const strategyId = this.getNodeParameter(
+								'strategyAddContactsStrategyId',
 								itemIndex,
-								false,
-							)
-						) {
-							includeOptions.WithActiveSequenceInstances = true;
+								0,
+							) as number;
+							if (strategyId) {
+								data.StrategyId = strategyId;
+							}
+							const prospectIds = parseCsv(
+								this.getNodeParameter('strategyAddContactsProspectIds', itemIndex, '') as string,
+							);
+							if (prospectIds.length) {
+								data.ProspectIds = prospectIds;
+							}
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
-						if (this.getNodeParameter('strategySearchIncludeAnalytics', itemIndex, false)) {
-							includeOptions.WithAnalytics = true;
+						body = { data };
+					} else if (operation === 'stopContactSequence') {
+						method = 'POST';
+						endpoint = `${endpoint}/prospects/stop`;
+						const data: IDataObject = useRawJsonData
+							? getJsonParameter(this, 'data', itemIndex)
+							: {};
+						if (!useRawJsonData) {
+							addIfNotEmpty(
+								data,
+								'ProspectId',
+								this.getNodeParameter('strategyStopContactProspectId', itemIndex, ''),
+							);
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
-						if (this.getNodeParameter('strategySearchIncludeSequence', itemIndex, false)) {
-							includeOptions.WithSequence = true;
+						body = { data };
+					} else {
+						method = 'POST';
+						endpoint = `${endpoint}/${operation === 'searchDetails' ? 'details' : 'search'}`;
+						if (useRawJsonSearch) {
+							body = getJsonParameter(this, 'search', itemIndex);
+						} else if (operation === 'searchDetails') {
+							const searchBody: IDataObject = {};
+							const strategyId = this.getNodeParameter(
+								'strategyDetailsStrategyId',
+								itemIndex,
+								0,
+							) as number;
+							searchBody.StrategyId = strategyId;
+							addIfNotEmpty(
+								searchBody,
+								'Text',
+								this.getNodeParameter('strategyDetailsText', itemIndex, ''),
+							);
+							const pagination: IDataObject = {};
+							addIfNotEmpty(
+								pagination,
+								'Limit',
+								this.getNodeParameter('strategyDetailsLimit', itemIndex, 50),
+							);
+							addIfNotEmpty(
+								pagination,
+								'Offset',
+								this.getNodeParameter('strategyDetailsOffset', itemIndex, 0),
+							);
+							if (Object.keys(pagination).length) {
+								searchBody.Pagination = pagination;
+							}
+							addIfNotEmpty(
+								searchBody,
+								'Sort',
+								this.getNodeParameter('strategyDetailsSort', itemIndex, 'ContactsAsc'),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'Status',
+								this.getNodeParameter('strategyDetailsStatus', itemIndex, ''),
+							);
+							const onlySpecificTask = this.getNodeParameter(
+								'strategyDetailsOnlySpecificTask',
+								itemIndex,
+								[],
+							) as string[];
+							if (onlySpecificTask.length) {
+								searchBody.OnlySpecificTask = onlySpecificTask;
+							}
+							if (this.getNodeParameter('strategyDetailsOnlyMySequences', itemIndex, false)) {
+								searchBody.OnlyMySequences = true;
+							}
+							if (this.getNodeParameter('strategyDetailsOnlyMyProspects', itemIndex, false)) {
+								searchBody.OnlyMyProspects = true;
+							}
+							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							body = searchBody;
+						} else {
+							const searchBody: IDataObject = {};
+							addIfNotEmpty(
+								searchBody,
+								'Name',
+								this.getNodeParameter('strategySearchName', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'AccountId',
+								this.getNodeParameter('strategySearchAccountId', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'ProspectId',
+								this.getNodeParameter('strategySearchProspectId', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'UserId',
+								this.getNodeParameter('strategySearchUserId', itemIndex, ''),
+							);
+							const ids = parseCsv(
+								this.getNodeParameter('strategySearchIds', itemIndex, '') as string,
+							);
+							if (ids.length) {
+								searchBody.Ids = ids;
+							}
+							const pagination: IDataObject = {};
+							addIfNotEmpty(
+								pagination,
+								'Limit',
+								this.getNodeParameter('strategySearchLimit', itemIndex, 50),
+							);
+							addIfNotEmpty(
+								pagination,
+								'Offset',
+								this.getNodeParameter('strategySearchOffset', itemIndex, 0),
+							);
+							if (Object.keys(pagination).length) {
+								searchBody.Pagination = pagination;
+							}
+							addIfNotEmpty(
+								searchBody,
+								'Sort',
+								this.getNodeParameter('strategySearchSort', itemIndex, ''),
+							);
+							const strategyTags = getJsonParameter(
+								this,
+								'strategySearchTags',
+								itemIndex,
+								{},
+							);
+							if (Object.keys(strategyTags).length) {
+								searchBody.StrategyTags = strategyTags;
+							}
+							const includeOptions: IDataObject = {};
+							if (
+								this.getNodeParameter(
+									'strategySearchIncludeActiveSequenceInstances',
+									itemIndex,
+									false,
+								)
+							) {
+								includeOptions.WithActiveSequenceInstances = true;
+							}
+							if (this.getNodeParameter('strategySearchIncludeAnalytics', itemIndex, false)) {
+								includeOptions.WithAnalytics = true;
+							}
+							if (this.getNodeParameter('strategySearchIncludeSequence', itemIndex, false)) {
+								includeOptions.WithSequence = true;
+							}
+							if (this.getNodeParameter('strategySearchIncludeUsers', itemIndex, false)) {
+								includeOptions.WithUsers = true;
+							}
+							if (Object.keys(includeOptions).length) {
+								searchBody.IncludeOptions = includeOptions;
+							}
+							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							body = searchBody;
 						}
-						if (this.getNodeParameter('strategySearchIncludeUsers', itemIndex, false)) {
-							includeOptions.WithUsers = true;
+					}
+					break;
+				}
+				case 'template': {
+					endpoint = `${basePath}/Templates`;
+					if (operation === 'get') {
+						method = 'GET';
+						const objectId = this.getNodeParameter('objectId', itemIndex) as string;
+						endpoint = `${endpoint}/${objectId}`;
+					} else if (operation === 'search') {
+						method = 'POST';
+						endpoint = `${endpoint}/search`;
+						if (useRawJsonSearch) {
+							body = getJsonParameter(this, 'search', itemIndex);
+						} else {
+							const searchBody: IDataObject = {};
+							addIfNotEmpty(
+								searchBody,
+								'Title',
+								this.getNodeParameter('templateSearchTitle', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'Type',
+								this.getNodeParameter('templateSearchType', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'Language',
+								this.getNodeParameter('templateSearchLanguage', itemIndex, ''),
+							);
+							if (this.getNodeParameter('templateSearchShared', itemIndex, false)) {
+								searchBody.Shared = true;
+							}
+							if (this.getNodeParameter('templateSearchArchived', itemIndex, false)) {
+								searchBody.Archived = true;
+							}
+							addIfNotEmpty(
+								searchBody,
+								'UserId',
+								this.getNodeParameter('templateSearchUserId', itemIndex, ''),
+							);
+							const include: IDataObject = {};
+							if (this.getNodeParameter('templateSearchIncludeUser', itemIndex, false)) {
+								include.WithUser = true;
+							}
+							if (this.getNodeParameter('templateSearchIncludeTemplateTags', itemIndex, false)) {
+								include.WithTemplateTags = true;
+							}
+							if (this.getNodeParameter('templateSearchIncludeCronoLists', itemIndex, false)) {
+								include.WithCronoLists = true;
+							}
+							if (Object.keys(include).length) {
+								searchBody.Include = include;
+							}
+							const pagination: IDataObject = {};
+							addIfNotEmpty(
+								pagination,
+								'Limit',
+								this.getNodeParameter('templateSearchLimit', itemIndex, 50),
+							);
+							addIfNotEmpty(
+								pagination,
+								'Offset',
+								this.getNodeParameter('templateSearchOffset', itemIndex, 0),
+							);
+							if (Object.keys(pagination).length) {
+								searchBody.Pagination = pagination;
+							}
+							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							body = searchBody;
 						}
-						if (Object.keys(includeOptions).length) {
-							searchBody.IncludeOptions = includeOptions;
-						}
-						Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
-						body = searchBody;
 					}
 					break;
 				}
@@ -7591,6 +8488,11 @@ export class CronoPublicApi implements INodeType {
 								searchBody,
 								'Email',
 								this.getNodeParameter('userSearchEmail', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'Name',
+								this.getNodeParameter('userSearchName', itemIndex, ''),
 							);
 							if (this.getNodeParameter('userSearchActive', itemIndex, false)) {
 								searchBody.Active = true;
