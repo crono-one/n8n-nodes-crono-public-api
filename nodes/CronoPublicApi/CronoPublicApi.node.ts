@@ -822,8 +822,8 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Owner ID',
-				name: 'companyCreateOwnerId',
+				displayName: 'User ID',
+				name: 'companyCreateUserId',
 				type: 'string',
 				default: '',
 				displayOptions: {
@@ -835,10 +835,10 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'User ID',
-				name: 'companyCreateUserId',
-				type: 'number',
-				default: 0,
+				displayName: 'Generate AI Variables (JSON)',
+				name: 'companyCreateGenerateAiVariables',
+				type: 'json',
+				default: {},
 				displayOptions: {
 					show: {
 						resource: ['company'],
@@ -846,6 +846,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
+				description: 'Generate AI variables request payload',
 			},
 			{
 				displayName: 'Name',
@@ -988,8 +989,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'companyUpdateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['company'],
@@ -1514,8 +1515,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'contactCreateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['contact'],
@@ -1680,8 +1681,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'contactUpdateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['contact'],
@@ -2064,8 +2065,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'dealCreateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['deal'],
@@ -2223,8 +2224,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'dealUpdateUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['deal'],
@@ -2315,7 +2316,6 @@ export class CronoPublicApi implements INodeType {
 				name: 'taskCreateProspectId',
 				type: 'string',
 				default: '',
-				required: true,
 				displayOptions: {
 					show: {
 						resource: ['task'],
@@ -2366,7 +2366,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Subtype',
 				name: 'taskCreateSubtype',
 				type: 'options',
-				default: 'LinkedinInvitation',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['task'],
@@ -2380,6 +2380,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'LinkedIn Message', value: 'LinkedinMessage' },
 					{ name: 'LinkedIn Profile View', value: 'LinkedinProfileView' },
 					{ name: 'LinkedIn Voice Note', value: 'LinkedinVoiceNote' },
+					{ name: 'None', value: '' },
 				],
 				description: 'Task subtype',
 			},
@@ -2423,6 +2424,20 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Opportunity ID linked to the task',
+			},
+			{
+				displayName: 'Assign To User',
+				name: 'taskCreateAssignToUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Whether the task should be assigned to the selected user',
 			},
 			{
 				displayName: 'Subject',
@@ -2574,7 +2589,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Type',
 				name: 'taskSearchType',
 				type: 'options',
-				default: 'Generic',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['task'],
@@ -2588,6 +2603,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Generic', value: 'Generic' },
 					{ name: 'InMail', value: 'InMail' },
 					{ name: 'LinkedIn', value: 'Linkedin' },
+					{ name: 'None', value: '' },
 				],
 				description: 'Task type',
 			},
@@ -2595,7 +2611,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Subtype',
 				name: 'taskSearchSubtype',
 				type: 'options',
-				default: 'LinkedinInvitation',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['task'],
@@ -2609,6 +2625,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'LinkedIn Message', value: 'LinkedinMessage' },
 					{ name: 'LinkedIn Profile View', value: 'LinkedinProfileView' },
 					{ name: 'LinkedIn Voice Note', value: 'LinkedinVoiceNote' },
+					{ name: 'None', value: '' },
 				],
 				description: 'Task subtype',
 			},
@@ -2632,6 +2649,27 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'LinkedIn', value: 'Linkedin' },
 				],
 				description: 'Task types',
+			},
+			{
+				displayName: 'Subtypes',
+				name: 'taskSearchSubtypes',
+				type: 'multiOptions',
+				default: [],
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'LinkedIn Invitation', value: 'LinkedinInvitation' },
+					{ name: 'LinkedIn Like Last Post', value: 'LinkedinLikeLastPost' },
+					{ name: 'LinkedIn Message', value: 'LinkedinMessage' },
+					{ name: 'LinkedIn Profile View', value: 'LinkedinProfileView' },
+					{ name: 'LinkedIn Voice Note', value: 'LinkedinVoiceNote' },
+				],
+				description: 'Task subtypes',
 			},
 			{
 				displayName: 'Since',
@@ -2859,6 +2897,86 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Lead external property filters',
+			},
+			{
+				displayName: 'With Prospect Score',
+				name: 'taskSearchWithProspectScore',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'With Account Score',
+				name: 'taskSearchWithAccountScore',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Lead Score Levels',
+				name: 'taskSearchLeadScoreLevels',
+				type: 'multiOptions',
+				default: [],
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'High', value: 'High' },
+					{ name: 'Low', value: 'Low' },
+					{ name: 'Medium', value: 'Medium' },
+				],
+			},
+			{
+				displayName: 'Prospect Score Levels',
+				name: 'taskSearchProspectScoreLevels',
+				type: 'multiOptions',
+				default: [],
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'High', value: 'High' },
+					{ name: 'Low', value: 'Low' },
+					{ name: 'Medium', value: 'Medium' },
+				],
+			},
+			{
+				displayName: 'Account Score Levels',
+				name: 'taskSearchAccountScoreLevels',
+				type: 'multiOptions',
+				default: [],
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'High', value: 'High' },
+					{ name: 'Low', value: 'Low' },
+					{ name: 'Medium', value: 'Medium' },
+				],
 			},
 			{
 				displayName: 'Name',
@@ -3324,8 +3442,21 @@ export class CronoPublicApi implements INodeType {
 				},			
 			},
 			{
-				displayName: 'Include Tasks',
+				displayName: 'Include Tasks Analytics',
 				name: 'companySearchIncludeTasks',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'companySearchIncludeUser',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
@@ -3381,8 +3512,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'contactSearchUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['contact'],
@@ -4019,7 +4150,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Owner user ID',
 			},
 			{
-				displayName: 'Stage',
+				displayName: 'Stages',
 				name: 'dealSearchStage',
 				type: 'string',
 				default: '',
@@ -4030,7 +4161,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Deal stage',
+				description: 'Comma-separated list of deal stages',
 			},
 			{
 				displayName: 'Pipeline',
@@ -4045,20 +4176,6 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Deal pipeline',
-			},
-			{
-				displayName: 'Object IDs',
-				name: 'dealSearchObjectIds',
-				type: 'string',
-				default: '',
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-				description: 'Comma-separated list of deal object IDs',
 			},
 			{
 				displayName: 'Limit',
@@ -4148,6 +4265,34 @@ export class CronoPublicApi implements INodeType {
 				description: 'Maximum last modified date',
 			},
 			{
+				displayName: 'Last Activity Date Min',
+				name: 'dealSearchLastActivityDateMin',
+				type: 'dateTime',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Minimum last activity date',
+			},
+			{
+				displayName: 'Last Activity Date Max',
+				name: 'dealSearchLastActivityDateMax',
+				type: 'dateTime',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Maximum last activity date',
+			},
+			{
 				displayName: 'Close Date Min',
 				name: 'dealSearchCloseDateMin',
 				type: 'dateTime',
@@ -4174,73 +4319,6 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Maximum close date',
-			},
-			{
-				displayName: 'Is Closed',
-				name: 'dealSearchIsClosed',
-				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-			},
-			{
-				displayName: 'Is Won',
-				name: 'dealSearchIsWon',
-				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-			},
-			{
-				displayName: 'Amount Min',
-				name: 'dealSearchAmountMin',
-				type: 'number',
-				default: 0,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-				description: 'Minimum amount',
-			},
-			{
-				displayName: 'Amount Max',
-				name: 'dealSearchAmountMax',
-				type: 'number',
-				default: 0,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
-				description: 'Maximum amount',
-			},
-			{
-				displayName: 'Active',
-				name: 'dealSearchActive',
-				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						resource: ['deal'],
-						operation: ['search'],
-						useRawJsonSearch: [false],
-					},
-				},
 			},
 			{
 				displayName: 'Year',
@@ -4307,6 +4385,32 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'Include Account',
 				name: 'dealSearchIncludeAccount',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include External Values',
+				name: 'dealSearchIncludeExternalValues',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'dealSearchIncludeUser',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
@@ -4477,6 +4581,19 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'Active',
 				name: 'noteSearchActive',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['note'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'noteSearchIncludeUser',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
@@ -4815,6 +4932,19 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
+				displayName: 'Include User',
+				name: 'activitySearchIncludeUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['activity'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
 				displayName: 'Include Account',
 				name: 'activitySearchIncludeAccount',
 				type: 'boolean',
@@ -4869,6 +4999,19 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'Include Opportunity',
 				name: 'activitySearchIncludeOpportunity',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['activity'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
+				displayName: 'Include Template Title',
+				name: 'activitySearchIncludeTemplateTitle',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
@@ -5511,6 +5654,20 @@ export class CronoPublicApi implements INodeType {
 				description: 'User email',
 			},
 			{
+				displayName: 'Name',
+				name: 'userSearchName',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['user'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'User name',
+			},
+			{
 				displayName: 'Active',
 				name: 'userSearchActive',
 				type: 'boolean',
@@ -5895,8 +6052,8 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'User ID',
 				name: 'templateSearchUserId',
-				type: 'number',
-				default: 0,
+				type: 'string',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['template'],
@@ -6227,7 +6384,10 @@ export class CronoPublicApi implements INodeType {
 								includes.WithTags = true;
 							}
 							if (this.getNodeParameter('companySearchIncludeTasks', itemIndex, false)) {
-								includes.WithTasks = true;
+								includes.WithTasksAnalytics = true;
+							}
+							if (this.getNodeParameter('companySearchIncludeUser', itemIndex, false)) {
+								includes.WithUser = true;
 							}
 							if (Object.keys(includes).length) {
 								searchBody.Includes = includes;
@@ -6317,16 +6477,21 @@ export class CronoPublicApi implements INodeType {
 							}
 							addIfNotEmpty(
 								data,
-								'OwnerId',
-								this.getNodeParameter('companyCreateOwnerId', itemIndex, ''),
+								'UserId',
+								this.getNodeParameter('companyCreateUserId', itemIndex, ''),
 							);
-							const userId = this.getNodeParameter('companyCreateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
 							const listId = this.getNodeParameter('companyCreateListId', itemIndex, 0) as number;
 							if (listId) {
 								data.ListId = listId;
+							}
+							const generateAiVariables = getJsonParameter(
+								this,
+								'companyCreateGenerateAiVariables',
+								itemIndex,
+								{},
+							);
+							if (Object.keys(generateAiVariables).length) {
+								data.GenerateAiVariables = generateAiVariables;
 							}
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
@@ -6395,10 +6560,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(externalValues).length) {
 								data.ExternalValues = externalValues;
 							}
-							const userId = this.getNodeParameter('companyUpdateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('companyUpdateUserId', itemIndex, ''),
+							);
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
@@ -6511,10 +6677,11 @@ export class CronoPublicApi implements INodeType {
 							if (objectIds.length) {
 								searchBody.ObjectIds = objectIds;
 							}
-							const userId = this.getNodeParameter('contactSearchUserId', itemIndex, 0) as number;
-							if (userId) {
-								searchBody.UserId = userId;
-							}
+							addIfNotEmpty(
+								searchBody,
+								'UserId',
+								this.getNodeParameter('contactSearchUserId', itemIndex, ''),
+							);
 							addIfNotEmpty(
 								searchBody,
 								'Industry',
@@ -6866,10 +7033,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(generateAiVariables).length) {
 								data.GenerateAiVariables = generateAiVariables;
 							}
-							const userId = this.getNodeParameter('contactCreateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('contactCreateUserId', itemIndex, ''),
+							);
 							addIfNotEmpty(
 								data,
 								'CountryCode',
@@ -6946,10 +7114,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(externalValues).length) {
 								data.ExternalValues = externalValues;
 							}
-							const userId = this.getNodeParameter('contactUpdateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('contactUpdateUserId', itemIndex, ''),
+							);
 							addIfNotEmpty(
 								data,
 								'CountryCode',
@@ -7085,19 +7254,14 @@ export class CronoPublicApi implements INodeType {
 							);
 							addIfNotEmpty(
 								searchBody,
-								'Stage',
-								this.getNodeParameter('dealSearchStage', itemIndex, ''),
-							);
-							addIfNotEmpty(
-								searchBody,
 								'Pipeline',
 								this.getNodeParameter('dealSearchPipeline', itemIndex, ''),
 							);
-							const objectIds = parseCsv(
-								this.getNodeParameter('dealSearchObjectIds', itemIndex, '') as string,
+							const stages = parseCsv(
+								this.getNodeParameter('dealSearchStage', itemIndex, '') as string,
 							);
-							if (objectIds.length) {
-								searchBody.ObjectIds = objectIds;
+							if (stages.length) {
+								searchBody.Stages = stages;
 							}
 							const pagination: IDataObject = {};
 							addIfNotEmpty(
@@ -7135,6 +7299,16 @@ export class CronoPublicApi implements INodeType {
 							);
 							addIfNotEmpty(
 								searchBody,
+								'LastActivityDateMin',
+								this.getNodeParameter('dealSearchLastActivityDateMin', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'LastActivityDateMax',
+								this.getNodeParameter('dealSearchLastActivityDateMax', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
 								'CloseDateMin',
 								this.getNodeParameter('dealSearchCloseDateMin', itemIndex, ''),
 							);
@@ -7143,23 +7317,6 @@ export class CronoPublicApi implements INodeType {
 								'CloseDateMax',
 								this.getNodeParameter('dealSearchCloseDateMax', itemIndex, ''),
 							);
-							if (this.getNodeParameter('dealSearchIsWon', itemIndex, false)) {
-								searchBody.IsWon = true;
-							}
-							if (this.getNodeParameter('dealSearchIsClosed', itemIndex, false)) {
-								searchBody.IsClosed = true;
-							}
-							const amountMin = this.getNodeParameter('dealSearchAmountMin', itemIndex, 0) as number;
-							if (amountMin) {
-								searchBody.AmountMin = amountMin;
-							}
-							const amountMax = this.getNodeParameter('dealSearchAmountMax', itemIndex, 0) as number;
-							if (amountMax) {
-								searchBody.AmountMax = amountMax;
-							}
-							if (this.getNodeParameter('dealSearchActive', itemIndex, false)) {
-								searchBody.Active = true;
-							}
 							const year = this.getNodeParameter('dealSearchYear', itemIndex, 0) as number;
 							if (year) {
 								searchBody.Year = year;
@@ -7181,6 +7338,12 @@ export class CronoPublicApi implements INodeType {
 							const includes: IDataObject = {};
 							if (this.getNodeParameter('dealSearchIncludeAccount', itemIndex, false)) {
 								includes.WithAccount = true;
+							}
+							if (this.getNodeParameter('dealSearchIncludeExternalValues', itemIndex, false)) {
+								includes.WithExternalValues = true;
+							}
+							if (this.getNodeParameter('dealSearchIncludeUser', itemIndex, false)) {
+								includes.WithUser = true;
 							}
 							if (Object.keys(includes).length) {
 								searchBody.Includes = includes;
@@ -7237,10 +7400,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(externalValues).length) {
 								data.ExternalValues = externalValues;
 							}
-							const userId = this.getNodeParameter('dealCreateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('dealCreateUserId', itemIndex, ''),
+							);
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
@@ -7299,10 +7463,11 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(externalValues).length) {
 								data.ExternalValues = externalValues;
 							}
-							const userId = this.getNodeParameter('dealUpdateUserId', itemIndex, 0) as number;
-							if (userId) {
-								data.UserId = userId;
-							}
+							addIfNotEmpty(
+								data,
+								'UserId',
+								this.getNodeParameter('dealUpdateUserId', itemIndex, ''),
+							);
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
@@ -7391,6 +7556,9 @@ export class CronoPublicApi implements INodeType {
 								searchBody.Active = true;
 							}
 							const includes: IDataObject = {};
+							if (this.getNodeParameter('noteSearchIncludeUser', itemIndex, false)) {
+								includes.WithUser = true;
+							}
 							if (this.getNodeParameter('noteSearchIncludeAccount', itemIndex, false)) {
 								includes.WithAccount = true;
 							}
@@ -7490,6 +7658,10 @@ export class CronoPublicApi implements INodeType {
 							if (types.length) {
 								searchBody.Types = types;
 							}
+							const subtypes = this.getNodeParameter('taskSearchSubtypes', itemIndex, []) as string[];
+							if (subtypes.length) {
+								searchBody.Subtypes = subtypes;
+							}
 							addIfNotEmpty(
 								searchBody,
 								'Since',
@@ -7584,6 +7756,36 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(leadExternalProperties).length) {
 								searchBody.LeadExternalProperties = leadExternalProperties;
 							}
+							if (this.getNodeParameter('taskSearchWithProspectScore', itemIndex, false)) {
+								searchBody.WithProspectScore = true;
+							}
+							if (this.getNodeParameter('taskSearchWithAccountScore', itemIndex, false)) {
+								searchBody.WithAccountScore = true;
+							}
+							const leadScoreLevels = this.getNodeParameter(
+								'taskSearchLeadScoreLevels',
+								itemIndex,
+								[],
+							) as string[];
+							if (leadScoreLevels.length) {
+								searchBody.LeadScoreLevels = leadScoreLevels;
+							}
+							const prospectScoreLevels = this.getNodeParameter(
+								'taskSearchProspectScoreLevels',
+								itemIndex,
+								[],
+							) as string[];
+							if (prospectScoreLevels.length) {
+								searchBody.ProspectScoreLevels = prospectScoreLevels;
+							}
+							const accountScoreLevels = this.getNodeParameter(
+								'taskSearchAccountScoreLevels',
+								itemIndex,
+								[],
+							) as string[];
+							if (accountScoreLevels.length) {
+								searchBody.AccountScoreLevels = accountScoreLevels;
+							}
 							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
 							body = searchBody;
 						}
@@ -7622,14 +7824,15 @@ export class CronoPublicApi implements INodeType {
 							if (templateId) {
 								data.TemplateId = templateId;
 							}
-							if (this.getNodeParameter('taskCreateAutomatic', itemIndex, false)) {
-								data.Automatic = true;
-							}
+							data.Automatic = this.getNodeParameter('taskCreateAutomatic', itemIndex, false) as boolean;
 							addIfNotEmpty(
 								data,
 								'OpportunityId',
 								this.getNodeParameter('taskCreateOpportunityId', itemIndex, ''),
 							);
+							if (this.getNodeParameter('taskCreateAssignToUser', itemIndex, false)) {
+								data.AssignToUser = true;
+							}
 							addIfNotEmpty(
 								data,
 								'Subject',
@@ -7782,6 +7985,9 @@ export class CronoPublicApi implements INodeType {
 								searchBody.CronoObjectId = cronoObjectId;
 							}
 							const includes: IDataObject = {};
+							if (this.getNodeParameter('activitySearchIncludeUser', itemIndex, false)) {
+								includes.WithUser = true;
+							}
 							if (this.getNodeParameter('activitySearchIncludeAccount', itemIndex, false)) {
 								includes.WithAccount = true;
 							}
@@ -7799,6 +8005,9 @@ export class CronoPublicApi implements INodeType {
 							}
 							if (this.getNodeParameter('activitySearchIncludeOpportunity', itemIndex, false)) {
 								includes.WithOpportunity = true;
+							}
+							if (this.getNodeParameter('activitySearchIncludeTemplateTitle', itemIndex, false)) {
+								includes.WithTemplateTitle = true;
 							}
 							if (Object.keys(includes).length) {
 								searchBody.Include = includes;
@@ -8184,10 +8393,11 @@ export class CronoPublicApi implements INodeType {
 							if (this.getNodeParameter('templateSearchArchived', itemIndex, false)) {
 								searchBody.Archived = true;
 							}
-							const userId = this.getNodeParameter('templateSearchUserId', itemIndex, 0) as number;
-							if (userId) {
-								searchBody.UserId = userId;
-							}
+							addIfNotEmpty(
+								searchBody,
+								'UserId',
+								this.getNodeParameter('templateSearchUserId', itemIndex, ''),
+							);
 							const include: IDataObject = {};
 							if (this.getNodeParameter('templateSearchIncludeUser', itemIndex, false)) {
 								include.WithUser = true;
@@ -8278,6 +8488,11 @@ export class CronoPublicApi implements INodeType {
 								searchBody,
 								'Email',
 								this.getNodeParameter('userSearchEmail', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'Name',
+								this.getNodeParameter('userSearchName', itemIndex, ''),
 							);
 							if (this.getNodeParameter('userSearchActive', itemIndex, false)) {
 								searchBody.Active = true;
