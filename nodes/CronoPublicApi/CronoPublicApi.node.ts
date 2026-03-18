@@ -849,6 +849,21 @@ export class CronoPublicApi implements INodeType {
 				description: 'Generate AI variables request payload',
 			},
 			{
+				displayName: 'Account ID',
+				name: 'companyUpdateAccountId',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['update'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Account ID to update',
+			},
+			{
 				displayName: 'Name',
 				name: 'companyUpdateName',
 				type: 'string',
@@ -1538,6 +1553,21 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Generate AI variables request payload',
+			},
+			{
+				displayName: 'Prospect ID',
+				name: 'contactUpdateProspectId',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['update'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Prospect ID to update',
 			},
 			{
 				displayName: 'First Name',
@@ -3409,6 +3439,8 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Owner Desc', value: 'OwnerDesc' },
 					{ name: 'Progress', value: 'Progress' },
 					{ name: 'Progress Desc', value: 'ProgressDesc' },
+					{ name: 'Score', value: 'Score' },
+					{ name: 'Score Desc', value: 'ScoreDesc' },
 					{ name: 'Status', value: 'Status' },
 					{ name: 'Status Desc', value: 'StatusDesc' },
 					{ name: 'Tasks', value: 'Tasks' },
@@ -4058,6 +4090,27 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
+				displayName: 'LinkedIn Status',
+				name: 'contactSearchLinkedinStatus',
+				type: 'options',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+				options: [
+					{ name: 'Any', value: '' },
+					{ name: 'Connected', value: 'Connected' },
+					{ name: 'Invitation Sent', value: 'InvitationSent' },
+					{ name: 'Not Connected', value: 'NotConnected' },
+					{ name: 'Unknown', value: 'Unknown' },
+				],
+				description: 'Filter by LinkedIn connection status related to the owner',
+			},
+			{
 				displayName: 'Sort',
 				name: 'contactSearchSort',
 				type: 'options',
@@ -4080,10 +4133,9 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Name Desc', value: 'NameDesc' },
 					{ name: 'Owner', value: 'Owner' },
 					{ name: 'Owner Desc', value: 'OwnerDesc' },
-					{ name: 'Progress', value: 'Progress' },
-					{ name: 'Progress Desc', value: 'ProgressDesc' },
-					{ name: 'Tasks', value: 'Tasks' },
-					{ name: 'Tasks Desc', value: 'TasksDesc' },
+					{ name: 'Prospect ID', value: 'ProspectId' },
+					{ name: 'Score', value: 'Score' },
+					{ name: 'Score Desc', value: 'ScoreDesc' },
 				],
 				description: 'Sort order',
 			},
@@ -4100,10 +4152,10 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				options: [
-					{ name: 'Accept All', value: 'accept_all' },
-					{ name: 'Invalid', value: 'invalid' },
-					{ name: 'Unknown', value: 'unknown' },
-					{ name: 'Valid', value: 'valid' },
+					{ name: 'Accept All', value: 'AcceptAll' },
+					{ name: 'Invalid', value: 'Invalid' },
+					{ name: 'Unknown', value: 'Unknown' },
+					{ name: 'Valid', value: 'Valid' },
 				],
 				description: 'Verification status filters',
 			},
@@ -5109,7 +5161,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Type',
 				name: 'listSearchType',
 				type: 'options',
-				default: 'Account',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['list'],
@@ -5119,10 +5171,12 @@ export class CronoPublicApi implements INodeType {
 				},
 				options: [
 					{ name: 'Account', value: 'Account' },
+					{ name: 'All', value: '' },
 					{ name: 'Lead', value: 'Lead' },
 					{ name: 'Prospect', value: 'Prospect' },
 					{ name: 'Strategy', value: 'Strategy' },
 					{ name: 'Template', value: 'Template' },
+					{ name: 'User', value: 'User' },
 				],
 				description: 'List table type',
 			},
@@ -5451,6 +5505,8 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Last Interaction Desc', value: 'LastInteractionDesc' },
 					{ name: 'Progress Asc', value: 'ProgressAsc' },
 					{ name: 'Progress Desc', value: 'ProgressDesc' },
+					{ name: 'Score Asc', value: 'ScoreAsc' },
+					{ name: 'Score Desc', value: 'ScoreDesc' },
 				],
 				description: 'Sort order',
 			},
@@ -5458,7 +5514,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Status',
 				name: 'strategyDetailsStatus',
 				type: 'options',
-				default: 'Active',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['strategy'],
@@ -5469,6 +5525,7 @@ export class CronoPublicApi implements INodeType {
 				options: [
 					{ name: 'Active', value: 'Active' },
 					{ name: 'Answered', value: 'Answered' },
+					{ name: 'Any', value: '' },
 					{ name: 'Completed', value: 'Completed' },
 					{ name: 'Converted', value: 'Converted' },
 					{ name: 'Dead', value: 'Dead' },
@@ -5532,7 +5589,7 @@ export class CronoPublicApi implements INodeType {
 				displayName: 'Table Type',
 				name: 'externalPropertySearchTableType',
 				type: 'options',
-				default: 'Account',
+				default: '',
 				displayOptions: {
 					show: {
 						resource: ['externalProperty'],
@@ -5542,6 +5599,7 @@ export class CronoPublicApi implements INodeType {
 				},
 				options: [
 					{ name: 'Account', value: 'Account' },
+					{ name: 'All', value: '' },
 					{ name: 'Lead', value: 'Lead' },
 					{ name: 'Opportunity', value: 'Opportunity' },
 					{ name: 'Prospect', value: 'Prospect' },
@@ -5745,6 +5803,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Prospect', value: 'Prospect' },
 					{ name: 'Strategy', value: 'Strategy' },
 					{ name: 'Template', value: 'Template' },
+					{ name: 'User', value: 'User' },
 				],
 				description: 'List table type',
 			},
@@ -6201,7 +6260,7 @@ export class CronoPublicApi implements INodeType {
 			if (operation === 'getAll') {
 				const limit = this.getNodeParameter('limit', itemIndex, 50) as number;
 				const offset = this.getNodeParameter('offset', itemIndex, 0) as number;
-				qs = { limit, offset };
+				qs = { Limit: limit, Offset: offset };
 			}
 
 			switch (resource) {
@@ -6503,6 +6562,11 @@ export class CronoPublicApi implements INodeType {
 							? getJsonParameter(this, 'data', itemIndex)
 							: {};
 						if (!useRawJsonData) {
+							addIfNotEmpty(
+								data,
+								'AccountId',
+								this.getNodeParameter('companyUpdateAccountId', itemIndex, ''),
+							);
 							addIfNotEmpty(
 								data,
 								'Name',
@@ -6883,6 +6947,11 @@ export class CronoPublicApi implements INodeType {
 							if (this.getNodeParameter('contactSearchOptedOut', itemIndex, false)) {
 								searchBody.OptedOut = true;
 							}
+							addIfNotEmpty(
+								searchBody,
+								'LinkedinStatus',
+								this.getNodeParameter('contactSearchLinkedinStatus', itemIndex, ''),
+							);
 							const pagination: IDataObject = {};
 							addIfNotEmpty(
 								pagination,
@@ -7065,6 +7134,11 @@ export class CronoPublicApi implements INodeType {
 							? getJsonParameter(this, 'data', itemIndex)
 							: {};
 						if (!useRawJsonData) {
+							addIfNotEmpty(
+								data,
+								'ProspectId',
+								this.getNodeParameter('contactUpdateProspectId', itemIndex, ''),
+							);
 							addIfNotEmpty(
 								data,
 								'FirstName',
@@ -8071,7 +8145,7 @@ export class CronoPublicApi implements INodeType {
 							addIfNotEmpty(
 								searchBody,
 								'Type',
-								this.getNodeParameter('listSearchType', itemIndex, 'Account'),
+								this.getNodeParameter('listSearchType', itemIndex, ''),
 							);
 							addIfNotEmpty(
 								searchBody,
@@ -8141,7 +8215,7 @@ export class CronoPublicApi implements INodeType {
 								this.getNodeParameter('listUpdateSharedUsersIds', itemIndex, '') as string,
 							);
 							if (sharedUsersIds.length) {
-								data.SharedUsersIds = sharedUsersIds.map((id) => parseInt(id, 10));
+								data.SharedUsersIds = sharedUsersIds;
 							}
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
@@ -8301,7 +8375,7 @@ export class CronoPublicApi implements INodeType {
 								this.getNodeParameter('strategySearchIds', itemIndex, '') as string,
 							);
 							if (ids.length) {
-								searchBody.Ids = ids;
+								searchBody.Ids = ids.map((id) => parseInt(id, 10));
 							}
 							const pagination: IDataObject = {};
 							addIfNotEmpty(
