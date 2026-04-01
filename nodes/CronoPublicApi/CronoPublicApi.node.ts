@@ -18,7 +18,7 @@ type CronoResource =
 	| 'activity'
 	| 'list'
 	| 'pipeline'
-	| 'strategy'
+	| 'sequence'
 	| 'template'
 	| 'externalProperty'
 	| 'user'
@@ -162,7 +162,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'List', value: 'list' },
 					{ name: 'Note', value: 'note' },
 					{ name: 'Pipeline', value: 'pipeline' },
-					{ name: 'Sequence', value: 'strategy' },
+					{ name: 'Sequence', value: 'sequence' },
 					{ name: 'Task', value: 'task' },
 					{ name: 'Template', value: 'template' },
 					{ name: 'User', value: 'user' },
@@ -309,7 +309,7 @@ export class CronoPublicApi implements INodeType {
 				type: 'options',
 				noDataExpression: true,
 				displayOptions: {
-					show: { resource: ['strategy'] },
+					show: { resource: ['sequence'] },
 				},
 				options: [
 					{
@@ -492,7 +492,7 @@ export class CronoPublicApi implements INodeType {
 							'note',
 							'activity',
 							'list',
-							'strategy',
+							'sequence',
 							'template',
 							'externalProperty',
 							'user',
@@ -517,7 +517,7 @@ export class CronoPublicApi implements INodeType {
 							'note',
 							'activity',
 							'list',
-							'strategy',
+							'sequence',
 							'template',
 							'externalProperty',
 							'user',
@@ -536,7 +536,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
 						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 					},
 				},
@@ -549,7 +549,7 @@ export class CronoPublicApi implements INodeType {
 				default: {},
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
 						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 						useRawJsonData: [true],
 					},
@@ -567,7 +567,7 @@ export class CronoPublicApi implements INodeType {
 				default: [],
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
 						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 						useRawJsonData: [false],
 					},
@@ -606,7 +606,7 @@ export class CronoPublicApi implements INodeType {
 							'note',
 							'activity',
 							'list',
-							'strategy',
+							'sequence',
 							'template',
 							'externalProperty',
 							'user',
@@ -5244,7 +5244,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5258,7 +5258,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5272,7 +5272,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5286,7 +5286,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5300,7 +5300,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5317,7 +5317,7 @@ export class CronoPublicApi implements INodeType {
 				default: 50,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5331,7 +5331,7 @@ export class CronoPublicApi implements INodeType {
 				default: 0,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5345,7 +5345,7 @@ export class CronoPublicApi implements INodeType {
 				default: 'Created',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5369,7 +5369,7 @@ export class CronoPublicApi implements INodeType {
 				default: {},
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5383,7 +5383,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5396,7 +5396,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5409,7 +5409,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5422,7 +5422,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5436,7 +5436,7 @@ export class CronoPublicApi implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5450,7 +5450,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5467,7 +5467,7 @@ export class CronoPublicApi implements INodeType {
 				default: 50,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5481,7 +5481,7 @@ export class CronoPublicApi implements INodeType {
 				default: 0,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5495,7 +5495,7 @@ export class CronoPublicApi implements INodeType {
 				default: 'ContactsAsc',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5521,7 +5521,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5545,7 +5545,7 @@ export class CronoPublicApi implements INodeType {
 				default: [],
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5570,7 +5570,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5583,7 +5583,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5997,7 +5997,7 @@ export class CronoPublicApi implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['addContacts'],
 						useRawJsonData: [false],
 					},
@@ -6011,7 +6011,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['addContacts'],
 						useRawJsonData: [false],
 					},
@@ -6026,7 +6026,7 @@ export class CronoPublicApi implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['stopContactSequence'],
 						useRawJsonData: [false],
 					},
@@ -8254,7 +8254,7 @@ export class CronoPublicApi implements INodeType {
 					endpoint = `${basePath}/Pipelines`;
 					break;
 				}
-				case 'strategy': {
+				case 'sequence': {
 					endpoint = `${basePath}/Strategies`;
 					if (operation === 'addContacts') {
 						method = 'POST';
