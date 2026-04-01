@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.1.0...v1.1.1) (2026-03-19)
+
+### Bug Fixes
+
+* fixed contracts according to latest fix on CronoPublicApi ([#15](https://github.com/crono-one/n8n-nodes-crono-public-api/issues/15)) ([b0b6da1](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/b0b6da14c84e774b4602b06ec36c31b3b13b386d))
+
 ## [1.1.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.0.0...v1.1.0) (2026-03-17)
 
 ### Features
