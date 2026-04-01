@@ -18,7 +18,7 @@ type CronoResource =
 	| 'activity'
 	| 'list'
 	| 'pipeline'
-	| 'strategy'
+	| 'sequence'
 	| 'template'
 	| 'externalProperty'
 	| 'user'
@@ -162,7 +162,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'List', value: 'list' },
 					{ name: 'Note', value: 'note' },
 					{ name: 'Pipeline', value: 'pipeline' },
-					{ name: 'Strategy', value: 'strategy' },
+					{ name: 'Sequence', value: 'sequence' },
 					{ name: 'Task', value: 'task' },
 					{ name: 'Template', value: 'template' },
 					{ name: 'User', value: 'user' },
@@ -309,16 +309,20 @@ export class CronoPublicApi implements INodeType {
 				type: 'options',
 				noDataExpression: true,
 				displayOptions: {
-					show: { resource: ['strategy'] },
+					show: { resource: ['sequence'] },
 				},
 				options: [
 					{
 						name: 'Add Contacts',
 						value: 'addContacts',
-						action: 'Add contacts to a strategy',
+						action: 'Add contacts to a sequence',
 					},
-					{ name: 'Search', value: 'search', action: 'Search strategies' },
-					{ name: 'Search Details', value: 'searchDetails', action: 'Search strategy details' },
+					{ name: 'Search Sequence', value: 'search', action: 'Search sequence' },
+					{
+						name: 'Search Sequence Details',
+						value: 'searchDetails',
+						action: 'Search sequence details',
+					},
 					{
 						name: 'Stop Contact Sequence',
 						value: 'stopContactSequence',
@@ -488,7 +492,7 @@ export class CronoPublicApi implements INodeType {
 							'note',
 							'activity',
 							'list',
-							'strategy',
+							'sequence',
 							'template',
 							'externalProperty',
 							'user',
@@ -513,7 +517,7 @@ export class CronoPublicApi implements INodeType {
 							'note',
 							'activity',
 							'list',
-							'strategy',
+							'sequence',
 							'template',
 							'externalProperty',
 							'user',
@@ -532,7 +536,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
 						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 					},
 				},
@@ -545,7 +549,7 @@ export class CronoPublicApi implements INodeType {
 				default: {},
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
 						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 						useRawJsonData: [true],
 					},
@@ -563,7 +567,7 @@ export class CronoPublicApi implements INodeType {
 				default: [],
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'strategy'],
+						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
 						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
 						useRawJsonData: [false],
 					},
@@ -602,7 +606,7 @@ export class CronoPublicApi implements INodeType {
 							'note',
 							'activity',
 							'list',
-							'strategy',
+							'sequence',
 							'template',
 							'externalProperty',
 							'user',
@@ -849,7 +853,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Generate AI variables request payload',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'companyUpdateAccountId',
 				type: 'string',
 				default: '',
@@ -861,7 +865,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Account ID to update',
+				description: 'Company ID to update',
 			},
 			{
 				displayName: 'Name',
@@ -1015,7 +1019,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Accounts',
+				displayName: 'Companies',
 				name: 'companyImportAccounts',
 				type: 'fixedCollection',
 				typeOptions: {
@@ -1029,11 +1033,11 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Accounts to import',
+				description: 'Companies to import',
 				options: [
 					{
 						name: 'account',
-						displayName: 'Account',
+						displayName: 'Company',
 						values: [
 							{
 								displayName: 'Annual Revenue',
@@ -1257,7 +1261,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Company name',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'contactCreateAccountId',
 				type: 'string',
 				default: '',
@@ -1268,7 +1272,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Account ID to associate with the contact',
+				description: 'Company ID to associate with the contact',
 			},
 			{
 				displayName: 'Company Annual Revenue',
@@ -1500,7 +1504,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Contact mobile phone',
 			},
 			{
-				displayName: 'Strategy ID',
+				displayName: 'Sequence ID',
 				name: 'contactCreateStrategyId',
 				type: 'number',
 				default: 0,
@@ -1511,7 +1515,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Strategy ID to add the contact to',
+				description: 'Sequence ID to add the contact to',
 			},
 			{
 				displayName: 'Time Zone',
@@ -1555,7 +1559,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Generate AI variables request payload',
 			},
 			{
-				displayName: 'Prospect ID',
+				displayName: 'Contact ID',
 				name: 'contactUpdateProspectId',
 				type: 'string',
 				default: '',
@@ -1567,7 +1571,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Prospect ID to update',
+				description: 'Contact ID to update',
 			},
 			{
 				displayName: 'First Name',
@@ -1722,7 +1726,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Prospects',
+				displayName: 'Contacts',
 				name: 'contactImportProspects',
 				type: 'fixedCollection',
 				typeOptions: {
@@ -1736,18 +1740,12 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Prospects to import',
+				description: 'Contacts to import',
 				options: [
 					{
 						name: 'prospect',
-						displayName: 'Prospect',
+						displayName: 'Contact',
 						values: [
-							{
-								displayName: 'Account External Values (JSON)',
-								name: 'accountExternalValues',
-								type: 'json',
-								default: {},
-							},
 							{
 								displayName: 'Company',
 								name: 'company',
@@ -1765,6 +1763,12 @@ export class CronoPublicApi implements INodeType {
 								name: 'companyCountry',
 								type: 'string',
 								default: '',
+							},
+							{
+								displayName: 'Company External Values (JSON)',
+								name: 'accountExternalValues',
+								type: 'json',
+								default: {},
 							},
 							{
 								displayName: 'Company Industry',
@@ -1858,7 +1862,7 @@ export class CronoPublicApi implements INodeType {
 								default: '',
 							},
 							{
-								displayName: 'Strategy ID',
+								displayName: 'Sequence ID',
 								name: 'strategyId',
 								type: 'number',
 								default: 0,
@@ -1977,7 +1981,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Comma-separated list of AI external property IDs to generate',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'dealCreateAccountId',
 				type: 'string',
 				default: '',
@@ -1989,7 +1993,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Account ID linked to the deal',
+				description: 'Company ID linked to the deal',
 			},
 			{
 				displayName: 'Name',
@@ -2107,7 +2111,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Owner user ID',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'dealUpdateAccountId',
 				type: 'string',
 				default: '',
@@ -2119,10 +2123,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Account ID linked to the deal',
+				description: 'Company ID linked to the deal',
 			},
 			{
-				displayName: 'Opportunity ID',
+				displayName: 'Deal ID',
 				name: 'dealUpdateOpportunityId',
 				type: 'string',
 				default: '',
@@ -2134,7 +2138,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Opportunity ID to update',
+				description: 'Deal ID to update',
 			},
 			{
 				displayName: 'Name',
@@ -2284,7 +2288,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Note content',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'noteCreateAccountId',
 				type: 'string',
 				default: '',
@@ -2296,10 +2300,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Account ID linked to the note',
+				description: 'Company ID linked to the note',
 			},
 			{
-				displayName: 'Opportunity ID',
+				displayName: 'Deal ID',
 				name: 'noteCreateOpportunityId',
 				type: 'string',
 				default: '',
@@ -2310,10 +2314,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Opportunity ID linked to the note',
+				description: 'Deal ID linked to the note',
 			},
 			{
-				displayName: 'Prospect IDs',
+				displayName: 'Contact IDs',
 				name: 'noteCreateProspectIds',
 				type: 'string',
 				default: '',
@@ -2324,10 +2328,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Comma-separated list of prospect IDs',
+				description: 'Comma-separated list of contact IDs',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'taskCreateAccountId',
 				type: 'string',
 				default: '',
@@ -2339,10 +2343,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Account ID linked to the task',
+				description: 'Company ID linked to the task',
 			},
 			{
-				displayName: 'Prospect ID',
+				displayName: 'Contact ID',
 				name: 'taskCreateProspectId',
 				type: 'string',
 				default: '',
@@ -2353,7 +2357,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Prospect ID linked to the task',
+				description: 'Contact ID linked to the task',
 			},
 			{
 				displayName: 'Type',
@@ -2442,7 +2446,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Whether the task is automatic',
 			},
 			{
-				displayName: 'Opportunity ID',
+				displayName: 'Deal ID',
 				name: 'taskCreateOpportunityId',
 				type: 'string',
 				default: '',
@@ -2453,7 +2457,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Opportunity ID linked to the task',
+				description: 'Deal ID linked to the task',
 			},
 			{
 				displayName: 'Assign To User',
@@ -2575,7 +2579,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Filter tasks by a specific date',
 			},
 			{
-				displayName: 'Prospect ID',
+				displayName: 'Contact ID',
 				name: 'taskSearchProspectId',
 				type: 'string',
 				default: '',
@@ -2586,10 +2590,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Filter tasks by prospect ID',
+				description: 'Filter tasks by contact ID',
 			},
 			{
-				displayName: 'Opportunity ID',
+				displayName: 'Deal ID',
 				name: 'taskSearchOpportunityId',
 				type: 'string',
 				default: '',
@@ -2600,7 +2604,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Filter tasks by opportunity ID',
+				description: 'Filter tasks by deal ID',
 			},
 			{
 				displayName: 'Completed',
@@ -2756,7 +2760,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Has Opportunity',
+				displayName: 'Has Deal',
 				name: 'taskSearchHasOpportunity',
 				type: 'boolean',
 				default: false,
@@ -2795,7 +2799,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'taskSearchAccountId',
 				type: 'string',
 				default: '',
@@ -2806,10 +2810,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Filter by account ID',
+				description: 'Filter by company ID',
 			},
 			{
-				displayName: 'Prospect List ID',
+				displayName: 'Contact List ID',
 				name: 'taskSearchProspectListId',
 				type: 'number',
 				default: 0,
@@ -2820,7 +2824,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Filter by prospect list ID',
+				description: 'Filter by contact list ID',
 			},
 			{
 				displayName: 'Lead List ID',
@@ -2837,7 +2841,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Filter by lead list ID',
 			},
 			{
-				displayName: 'Account List ID',
+				displayName: 'Company List ID',
 				name: 'taskSearchAccountListId',
 				type: 'number',
 				default: 0,
@@ -2848,10 +2852,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Filter by account list ID',
+				description: 'Filter by company list ID',
 			},
 			{
-				displayName: 'Strategy ID',
+				displayName: 'Sequence ID',
 				name: 'taskSearchStrategyId',
 				type: 'number',
 				default: 0,
@@ -2862,7 +2866,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Filter by strategy ID',
+				description: 'Filter by sequence ID',
 			},
 			{
 				displayName: 'Sort By',
@@ -2887,7 +2891,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Sort order',
 			},
 			{
-				displayName: 'Account External Properties (JSON)',
+				displayName: 'Company External Properties (JSON)',
 				name: 'taskSearchAccountExternalProperties',
 				type: 'json',
 				default: {},
@@ -2898,10 +2902,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Account external property filters',
+				description: 'Company external property filters',
 			},
 			{
-				displayName: 'Prospect External Properties (JSON)',
+				displayName: 'Contact External Properties (JSON)',
 				name: 'taskSearchProspectExternalProperties',
 				type: 'json',
 				default: {},
@@ -2912,7 +2916,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Prospect external property filters',
+				description: 'Contact external property filters',
 			},
 			{
 				displayName: 'Lead External Properties (JSON)',
@@ -2929,7 +2933,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Lead external property filters',
 			},
 			{
-				displayName: 'With Prospect Score',
+				displayName: 'With Contact Score',
 				name: 'taskSearchWithProspectScore',
 				type: 'boolean',
 				default: false,
@@ -2942,7 +2946,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'With Account Score',
+				displayName: 'With Company Score',
 				name: 'taskSearchWithAccountScore',
 				type: 'boolean',
 				default: false,
@@ -2973,7 +2977,7 @@ export class CronoPublicApi implements INodeType {
 				],
 			},
 			{
-				displayName: 'Prospect Score Levels',
+				displayName: 'Contact Score Levels',
 				name: 'taskSearchProspectScoreLevels',
 				type: 'multiOptions',
 				default: [],
@@ -2991,7 +2995,7 @@ export class CronoPublicApi implements INodeType {
 				],
 			},
 			{
-				displayName: 'Account Score Levels',
+				displayName: 'Company Score Levels',
 				name: 'taskSearchAccountScoreLevels',
 				type: 'multiOptions',
 				default: [],
@@ -3112,7 +3116,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Customer', value: 'Customer' },
 					{ name: 'Inactive', value: 'Inactive' },
 					{ name: 'Nurture', value: 'Nurture' },
-					{ name: 'Open Opportunity', value: 'OpenOpportunity' },
+					{ name: 'Open Deal', value: 'OpenOpportunity' },
 					{ name: 'Working', value: 'Working' },
 				],
 				description: 'Company status filters',
@@ -3587,7 +3591,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Number of results to skip',
 			},
 			{
-				displayName: 'Account External Properties (JSON)',
+				displayName: 'Company External Properties (JSON)',
 				name: 'contactSearchAccountExternalProperties',
 				type: 'json',
 				default: {},
@@ -3598,10 +3602,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Account external property filters',
+				description: 'Company external property filters',
 			},
 			{
-				displayName: 'Account External Property Empty IDs',
+				displayName: 'Company External Property Empty IDs',
 				name: 'contactSearchAccountExternalPropertyEmptyIds',
 				type: 'string',
 				default: '',
@@ -3612,10 +3616,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Comma-separated list of account external property IDs to match empty values',
+				description: 'Comma-separated list of company external property IDs to match empty values',
 			},
 			{
-				displayName: 'Account External Property Numeric Filters (JSON)',
+				displayName: 'Company External Property Numeric Filters (JSON)',
 				name: 'contactSearchAccountExternalPropertyNumericFilters',
 				type: 'json',
 				default: {},
@@ -3626,10 +3630,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Account external property numeric filters',
+				description: 'Company external property numeric filters',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'contactSearchAccountId',
 				type: 'string',
 				default: '',
@@ -3642,7 +3646,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Account Status',
+				displayName: 'Company Status',
 				name: 'contactSearchAccountStatus',
 				type: 'multiOptions',
 				default: [],
@@ -3658,10 +3662,10 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Customer', value: 'Customer' },
 					{ name: 'Inactive', value: 'Inactive' },
 					{ name: 'Nurture', value: 'Nurture' },
-					{ name: 'Open Opportunity', value: 'OpenOpportunity' },
+					{ name: 'Open Deal', value: 'OpenOpportunity' },
 					{ name: 'Working', value: 'Working' },
 				],
-				description: 'Account status filters',
+				description: 'Company status filters',
 			},
 			{
 				displayName: 'Actual Status',
@@ -4125,6 +4129,7 @@ export class CronoPublicApi implements INodeType {
 				options: [
 					{ name: 'Company Name', value: 'CompanyName' },
 					{ name: 'Company Name Desc', value: 'CompanyNameDesc' },
+					{ name: 'Contact ID', value: 'ProspectId' },
 					{ name: 'Created Date', value: 'CreatedDate' },
 					{ name: 'Created Date Desc', value: 'CreatedDateDesc' },
 					{ name: 'Last Activity', value: 'LastActivity' },
@@ -4133,7 +4138,6 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Name Desc', value: 'NameDesc' },
 					{ name: 'Owner', value: 'Owner' },
 					{ name: 'Owner Desc', value: 'OwnerDesc' },
-					{ name: 'Prospect ID', value: 'ProspectId' },
 					{ name: 'Score', value: 'Score' },
 					{ name: 'Score Desc', value: 'ScoreDesc' },
 				],
@@ -4174,7 +4178,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Deal name',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'dealSearchAccountId',
 				type: 'string',
 				default: '',
@@ -4185,7 +4189,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Account ID linked to the deal',
+				description: 'Company ID linked to the deal',
 			},
 			{
 				displayName: 'User ID',
@@ -4435,7 +4439,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Sort order',
 			},
 			{
-				displayName: 'Include Account',
+				displayName: 'Include Company',
 				name: 'dealSearchIncludeAccount',
 				type: 'boolean',
 				default: false,
@@ -4488,7 +4492,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Text to match in note content',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'noteSearchAccountId',
 				type: 'string',
 				default: '',
@@ -4499,10 +4503,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Account ID linked to the note',
+				description: 'Company ID linked to the note',
 			},
 			{
-				displayName: 'Opportunity ID',
+				displayName: 'Deal ID',
 				name: 'noteSearchOpportunityId',
 				type: 'string',
 				default: '',
@@ -4513,7 +4517,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Opportunity ID linked to the note',
+				description: 'Deal ID linked to the note',
 			},
 			{
 				displayName: 'User ID',
@@ -4657,7 +4661,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Include Account',
+				displayName: 'Include Company',
 				name: 'noteSearchIncludeAccount',
 				type: 'boolean',
 				default: false,
@@ -4670,7 +4674,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Include Opportunity',
+				displayName: 'Include Deal',
 				name: 'noteSearchIncludeOpportunity',
 				type: 'boolean',
 				default: false,
@@ -4683,7 +4687,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Include Prospects',
+				displayName: 'Include Contacts',
 				name: 'noteSearchIncludeProspects',
 				type: 'boolean',
 				default: false,
@@ -4710,7 +4714,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'Activity subject',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'activitySearchAccountId',
 				type: 'string',
 				default: '',
@@ -4721,10 +4725,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Account ID linked to the activity',
+				description: 'Company ID linked to the activity',
 			},
 			{
-				displayName: 'Prospect ID',
+				displayName: 'Contact ID',
 				name: 'activitySearchProspectId',
 				type: 'string',
 				default: '',
@@ -4735,10 +4739,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Prospect ID linked to the activity',
+				description: 'Contact ID linked to the activity',
 			},
 			{
-				displayName: 'Opportunity ID',
+				displayName: 'Deal ID',
 				name: 'activitySearchOpportunityId',
 				type: 'string',
 				default: '',
@@ -4749,7 +4753,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Opportunity ID linked to the activity',
+				description: 'Deal ID linked to the activity',
 			},
 			{
 				displayName: 'User ID',
@@ -4997,7 +5001,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Include Account',
+				displayName: 'Include Company',
 				name: 'activitySearchIncludeAccount',
 				type: 'boolean',
 				default: false,
@@ -5049,7 +5053,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Include Opportunity',
+				displayName: 'Include Deal',
 				name: 'activitySearchIncludeOpportunity',
 				type: 'boolean',
 				default: false,
@@ -5075,7 +5079,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Include Prospect',
+				displayName: 'Include Contact',
 				name: 'activitySearchIncludeProspect',
 				type: 'boolean',
 				default: false,
@@ -5102,7 +5106,7 @@ export class CronoPublicApi implements INodeType {
 				description: 'List name',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'listSearchAccountId',
 				type: 'string',
 				default: '',
@@ -5113,10 +5117,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Account ID linked to the list',
+				description: 'Company ID linked to the list',
 			},
 			{
-				displayName: 'Prospect ID',
+				displayName: 'Contact ID',
 				name: 'listSearchProspectId',
 				type: 'string',
 				default: '',
@@ -5127,10 +5131,10 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Prospect ID linked to the list',
+				description: 'Contact ID linked to the list',
 			},
 			{
-				displayName: 'Strategy ID',
+				displayName: 'Sequence ID',
 				name: 'listSearchStrategyId',
 				type: 'number',
 				default: 0,
@@ -5141,7 +5145,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Strategy ID linked to the list',
+				description: 'Sequence ID linked to the list',
 			},
 			{
 				displayName: 'Template ID',
@@ -5170,11 +5174,11 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				options: [
-					{ name: 'Account', value: 'Account' },
 					{ name: 'All', value: '' },
+					{ name: 'Company', value: 'Account' },
+					{ name: 'Contact', value: 'Prospect' },
 					{ name: 'Lead', value: 'Lead' },
-					{ name: 'Prospect', value: 'Prospect' },
-					{ name: 'Strategy', value: 'Strategy' },
+					{ name: 'Sequence', value: 'Strategy' },
 					{ name: 'Template', value: 'Template' },
 					{ name: 'User', value: 'User' },
 				],
@@ -5240,40 +5244,40 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Strategy name',
+				description: 'Sequence name',
 			},
 			{
-				displayName: 'Account ID',
+				displayName: 'Company ID',
 				name: 'strategySearchAccountId',
 				type: 'string',
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Account ID linked to the strategy',
+				description: 'Company ID linked to the sequence',
 			},
 			{
-				displayName: 'Prospect ID',
+				displayName: 'Contact ID',
 				name: 'strategySearchProspectId',
 				type: 'string',
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Prospect ID linked to the strategy',
+				description: 'Contact ID linked to the sequence',
 			},
 			{
 				displayName: 'User ID',
@@ -5282,7 +5286,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5296,12 +5300,12 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Comma-separated list of strategy IDs',
+				description: 'Comma-separated list of sequence IDs',
 			},
 			{
 				displayName: 'Limit',
@@ -5313,7 +5317,7 @@ export class CronoPublicApi implements INodeType {
 				default: 50,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5327,7 +5331,7 @@ export class CronoPublicApi implements INodeType {
 				default: 0,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5341,7 +5345,7 @@ export class CronoPublicApi implements INodeType {
 				default: 'Created',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5359,18 +5363,18 @@ export class CronoPublicApi implements INodeType {
 				description: 'Sort order',
 			},
 			{
-				displayName: 'Strategy Tags (JSON)',
+				displayName: 'Sequence Tags (JSON)',
 				name: 'strategySearchTags',
 				type: 'json',
 				default: {},
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Array of strategy tags',
+				description: 'Array of sequence tags',
 			},
 			{
 				displayName: 'Include Active Sequence Instances',
@@ -5379,7 +5383,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5392,7 +5396,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5405,7 +5409,7 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
@@ -5418,26 +5422,26 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
 				},
 			},
 			{
-				displayName: 'Strategy ID',
+				displayName: 'Sequence ID',
 				name: 'strategyDetailsStrategyId',
 				type: 'number',
 				default: 0,
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Strategy ID to retrieve details for',
+				description: 'Sequence ID to retrieve details for',
 			},
 			{
 				displayName: 'Text',
@@ -5446,12 +5450,12 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
 				},
-				description: 'Free-text filter for strategy details',
+				description: 'Free-text filter for sequence details',
 			},
 			{
 				displayName: 'Limit',
@@ -5463,7 +5467,7 @@ export class CronoPublicApi implements INodeType {
 				default: 50,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5477,7 +5481,7 @@ export class CronoPublicApi implements INodeType {
 				default: 0,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5491,7 +5495,7 @@ export class CronoPublicApi implements INodeType {
 				default: 'ContactsAsc',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5517,7 +5521,7 @@ export class CronoPublicApi implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5541,7 +5545,7 @@ export class CronoPublicApi implements INodeType {
 				default: [],
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5566,20 +5570,20 @@ export class CronoPublicApi implements INodeType {
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
 				},
 			},
 			{
-				displayName: 'Only My Prospects',
+				displayName: 'Only My Contacts',
 				name: 'strategyDetailsOnlyMyProspects',
 				type: 'boolean',
 				default: false,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
 					},
@@ -5598,11 +5602,11 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				options: [
-					{ name: 'Account', value: 'Account' },
 					{ name: 'All', value: '' },
+					{ name: 'Company', value: 'Account' },
+					{ name: 'Contact', value: 'Prospect' },
+					{ name: 'Deal', value: 'Opportunity' },
 					{ name: 'Lead', value: 'Lead' },
-					{ name: 'Opportunity', value: 'Opportunity' },
-					{ name: 'Prospect', value: 'Prospect' },
 				],
 				description: 'External properties table type',
 			},
@@ -5798,10 +5802,10 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				options: [
-					{ name: 'Account', value: 'Account' },
+					{ name: 'Company', value: 'Account' },
+					{ name: 'Contact', value: 'Prospect' },
 					{ name: 'Lead', value: 'Lead' },
-					{ name: 'Prospect', value: 'Prospect' },
-					{ name: 'Strategy', value: 'Strategy' },
+					{ name: 'Sequence', value: 'Strategy' },
 					{ name: 'Template', value: 'Template' },
 					{ name: 'User', value: 'User' },
 				],
@@ -5847,7 +5851,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Comma-separated object IDs for Account/Prospect lists',
+				description: 'Comma-separated object IDs for Company/Contact lists',
 			},
 			{
 				displayName: 'IDs',
@@ -5861,7 +5865,7 @@ export class CronoPublicApi implements INodeType {
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Comma-separated numeric IDs for Template/Strategy lists',
+				description: 'Comma-separated numeric IDs for Template/Sequence lists',
 			},
 			{
 				displayName: 'List ID',
@@ -5986,48 +5990,48 @@ export class CronoPublicApi implements INodeType {
 				description: 'Comma-separated numeric IDs',
 			},
 			{
-				displayName: 'Strategy ID',
+				displayName: 'Sequence ID',
 				name: 'strategyAddContactsStrategyId',
 				type: 'number',
 				default: 0,
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['addContacts'],
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Strategy ID to enroll contacts into',
+				description: 'Sequence ID to enroll contacts into',
 			},
 			{
-				displayName: 'Prospect IDs',
+				displayName: 'Contact IDs',
 				name: 'strategyAddContactsProspectIds',
 				type: 'string',
 				default: '',
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['addContacts'],
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Comma-separated prospect object IDs',
+				description: 'Comma-separated contact object IDs',
 			},
 			{
-				displayName: 'Prospect ID',
+				displayName: 'Contact ID',
 				name: 'strategyStopContactProspectId',
 				type: 'string',
 				default: '',
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['strategy'],
+						resource: ['sequence'],
 						operation: ['stopContactSequence'],
 						useRawJsonData: [false],
 					},
 				},
-				description: 'Prospect object ID whose sequence must be stopped',
+				description: 'Contact object ID whose sequence must be stopped',
 			},
 			{
 				displayName: 'Title',
@@ -6207,11 +6211,11 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				options: [
-					{ name: 'Account', value: 'Account' },
 					{ name: 'All', value: '' },
+					{ name: 'Company', value: 'Account' },
+					{ name: 'Contact', value: 'Prospect' },
+					{ name: 'Deal', value: 'Opportunity' },
 					{ name: 'Lead', value: 'Lead' },
-					{ name: 'Opportunity', value: 'Opportunity' },
-					{ name: 'Prospect', value: 'Prospect' },
 				],
 				description: 'Filter imports by table type',
 			},
@@ -8250,7 +8254,7 @@ export class CronoPublicApi implements INodeType {
 					endpoint = `${basePath}/Pipelines`;
 					break;
 				}
-				case 'strategy': {
+				case 'sequence': {
 					endpoint = `${basePath}/Strategies`;
 					if (operation === 'addContacts') {
 						method = 'POST';
