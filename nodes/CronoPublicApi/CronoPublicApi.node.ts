@@ -63,6 +63,8 @@ type PaginationConfig =
 			type: 'query';
 			limit: number;
 			offset: number;
+			limitKey: 'limit' | 'Limit';
+			offsetKey: 'offset' | 'Offset';
 	  }
 	| {
 			type: 'body';
@@ -125,14 +127,18 @@ function cloneDataObject<T>(value: T): T {
 }
 
 function getPaginationConfig(qs: IDataObject, body?: IDataObject): PaginationConfig | undefined {
-	const queryLimit = qs.limit;
-	const queryOffset = qs.offset;
+	const queryLimitKey = typeof qs.Limit === 'number' ? 'Limit' : 'limit';
+	const queryOffsetKey = typeof qs.Offset === 'number' ? 'Offset' : 'offset';
+	const queryLimit = qs[queryLimitKey];
+	const queryOffset = qs[queryOffsetKey];
 
 	if (typeof queryLimit === 'number' && typeof queryOffset === 'number') {
 		return {
 			type: 'query',
 			limit: queryLimit,
 			offset: queryOffset,
+			limitKey: queryLimitKey,
+			offsetKey: queryOffsetKey,
 		};
 	}
 
@@ -169,7 +175,9 @@ function setPaginationOffset(
 	offset: number,
 ): void {
 	if (pagination.type === 'query') {
-		qs.offset = offset;
+		const offsetKey =
+			pagination.offsetKey in qs ? pagination.offsetKey : 'Offset' in qs ? 'Offset' : 'offset';
+		qs[offsetKey] = offset;
 		return;
 	}
 
@@ -190,10 +198,11 @@ function setPaginationOffset(
 
 function extractItemsFromResponse(responseData: unknown): IDataObject[] | null {
 	if (Array.isArray(responseData)) {
-		return responseData.filter(
+		const items = responseData.filter(
 			(item): item is IDataObject =>
 				item !== null && typeof item === 'object' && !Array.isArray(item),
 		);
+		return items.length > 0 ? items : null;
 	}
 
 	if (!responseData || typeof responseData !== 'object') {
@@ -222,24 +231,30 @@ function extractItemsFromResponse(responseData: unknown): IDataObject[] | null {
 	for (const key of preferredKeys) {
 		const value = responseObject[key];
 		if (Array.isArray(value)) {
-			return value.filter(
+			const items = value.filter(
 				(item): item is IDataObject =>
 					item !== null && typeof item === 'object' && !Array.isArray(item),
 			);
+			if (items.length > 0) {
+				return items;
+			}
 		}
 	}
 
 	for (const value of Object.values(responseObject)) {
 		if (Array.isArray(value)) {
-			return value.filter(
+			const items = value.filter(
 				(item): item is IDataObject =>
 					item !== null && typeof item === 'object' && !Array.isArray(item),
 			);
+			if (items.length > 0) {
+				return items;
+			}
 		}
 
 		if (value && typeof value === 'object') {
 			const nestedItems = extractItemsFromResponse(value);
-			if (nestedItems) {
+			if (nestedItems && nestedItems.length > 0) {
 				return nestedItems;
 			}
 		}
@@ -8896,13 +8911,23 @@ export class CronoPublicApi implements INodeType {
 					});
 			}
 
-			const pagination = returnAll ? getPaginationConfig(qs, body) : undefined;
+			const pagination = returnAll && !useRawJsonSearch ? getPaginationConfig(qs, body) : undefined;
 			if (pagination) {
+				const maxIterations = 100;
 				const aggregatedItems: IDataObject[] = [];
 				let currentOffset = pagination.offset;
+				let iterationCount = 0;
 				let fallbackResponse: IDataObject | undefined;
+				let reachedMaxIterations = false;
+				const pageSize = pagination.limit > 0 ? pagination.limit : 1;
 
 				while (true) {
+					iterationCount += 1;
+					if (iterationCount > maxIterations) {
+						reachedMaxIterations = true;
+						break;
+					}
+
 					const requestQs = cloneDataObject(qs);
 					const requestBody = cloneDataObject(body);
 					setPaginationOffset(requestQs, requestBody, pagination, currentOffset);
@@ -8928,19 +8953,21 @@ export class CronoPublicApi implements INodeType {
 					}
 
 					const totalCount = getTotalCount(responseData);
-					const nextOffset = currentOffset + pagination.limit;
+					const nextOffset = currentOffset + pageSize;
 					if (totalCount !== undefined) {
 						if (nextOffset >= totalCount) {
 							break;
 						}
-					} else if (pageItems.length < pagination.limit) {
+					} else if (pageItems.length < pageSize) {
 						break;
 					}
 
 					currentOffset = nextOffset;
 				}
 
-				if (aggregatedItems.length > 0) {
+				if (reachedMaxIterations && fallbackResponse) {
+					returnData.push({ json: fallbackResponse, pairedItem: { item: itemIndex } });
+				} else if (aggregatedItems.length > 0) {
 					returnData.push(
 						...aggregatedItems.map((json) => ({
 							json,
