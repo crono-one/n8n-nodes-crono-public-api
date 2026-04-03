@@ -58,6 +58,25 @@ type AdditionalFieldEntry = {
 	value?: string;
 };
 
+type PaginationConfig =
+	| {
+			type: 'query';
+			limit: number;
+			offset: number;
+			limitKey: 'limit' | 'Limit';
+			offsetKey: 'offset' | 'Offset';
+	  }
+	| {
+			type: 'body';
+			limit: number;
+			offset: number;
+	  }
+	| {
+			type: 'bodyPagination';
+			limit: number;
+			offset: number;
+	  };
+
 function addIfNotEmpty(target: IDataObject, key: string, value: unknown) {
 	if (value !== undefined && value !== null && value !== '') {
 		target[key] = value as IDataObject[keyof IDataObject];
@@ -69,8 +88,15 @@ function getAdditionalFields(
 	parameterName: string,
 	itemIndex: number,
 ): IDataObject {
-	const entries = executeFunctions.getNodeParameter(parameterName, itemIndex, []) as AdditionalFieldEntry[];
+	const rawValue = executeFunctions.getNodeParameter(parameterName, itemIndex, {}) as
+		| AdditionalFieldEntry[]
+		| IDataObject;
 	const additional: IDataObject = {};
+	const entries = Array.isArray(rawValue)
+		? rawValue
+		: ((Object.values(rawValue).find((value) => Array.isArray(value)) as
+				| AdditionalFieldEntry[]
+				| undefined) ?? []);
 
 	for (const entry of entries) {
 		if (entry.field) {
@@ -90,6 +116,177 @@ function parseCsv(value?: string): string[] {
 		.split(',')
 		.map((item) => item.trim())
 		.filter((item) => item.length > 0);
+}
+
+function cloneDataObject<T>(value: T): T {
+	if (value === undefined) {
+		return value;
+	}
+
+	return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function getPaginationConfig(qs: IDataObject, body?: IDataObject): PaginationConfig | undefined {
+	const queryLimitKey = typeof qs.Limit === 'number' ? 'Limit' : 'limit';
+	const queryOffsetKey = typeof qs.Offset === 'number' ? 'Offset' : 'offset';
+	const queryLimit = qs[queryLimitKey];
+	const queryOffset = qs[queryOffsetKey];
+
+	if (typeof queryLimit === 'number' && typeof queryOffset === 'number') {
+		return {
+			type: 'query',
+			limit: queryLimit,
+			offset: queryOffset,
+			limitKey: queryLimitKey,
+			offsetKey: queryOffsetKey,
+		};
+	}
+
+	if (!body) {
+		return undefined;
+	}
+
+	const bodyLimit = body.Limit;
+	const bodyOffset = body.Offset;
+	if (typeof bodyLimit === 'number' && typeof bodyOffset === 'number') {
+		return {
+			type: 'body',
+			limit: bodyLimit,
+			offset: bodyOffset,
+		};
+	}
+
+	const pagination = body.Pagination as IDataObject | undefined;
+	if (pagination && typeof pagination.Limit === 'number' && typeof pagination.Offset === 'number') {
+		return {
+			type: 'bodyPagination',
+			limit: pagination.Limit,
+			offset: pagination.Offset,
+		};
+	}
+
+	return undefined;
+}
+
+function setPaginationOffset(
+	qs: IDataObject,
+	body: IDataObject | undefined,
+	pagination: PaginationConfig,
+	offset: number,
+): void {
+	if (pagination.type === 'query') {
+		const offsetKey =
+			pagination.offsetKey in qs ? pagination.offsetKey : 'Offset' in qs ? 'Offset' : 'offset';
+		qs[offsetKey] = offset;
+		return;
+	}
+
+	if (!body) {
+		return;
+	}
+
+	if (pagination.type === 'body') {
+		body.Offset = offset;
+		return;
+	}
+
+	const currentPagination = body.Pagination as IDataObject | undefined;
+	if (currentPagination) {
+		currentPagination.Offset = offset;
+	}
+}
+
+function extractItemsFromResponse(responseData: unknown): IDataObject[] | null {
+	if (Array.isArray(responseData)) {
+		const items = responseData.filter(
+			(item): item is IDataObject =>
+				item !== null && typeof item === 'object' && !Array.isArray(item),
+		);
+		return items.length > 0 ? items : null;
+	}
+
+	if (!responseData || typeof responseData !== 'object') {
+		return null;
+	}
+
+	const preferredKeys = [
+		'Accounts',
+		'Prospects',
+		'Opportunities',
+		'Notes',
+		'Activities',
+		'Users',
+		'Imports',
+		'CronoLists',
+		'Strategies',
+		'Sequences',
+		'Templates',
+		'Tasks',
+		'Results',
+		'Items',
+		'Data',
+	];
+
+	const responseObject = responseData as IDataObject;
+	for (const key of preferredKeys) {
+		const value = responseObject[key];
+		if (Array.isArray(value)) {
+			const items = value.filter(
+				(item): item is IDataObject =>
+					item !== null && typeof item === 'object' && !Array.isArray(item),
+			);
+			if (items.length > 0) {
+				return items;
+			}
+		}
+	}
+
+	for (const value of Object.values(responseObject)) {
+		if (Array.isArray(value)) {
+			const items = value.filter(
+				(item): item is IDataObject =>
+					item !== null && typeof item === 'object' && !Array.isArray(item),
+			);
+			if (items.length > 0) {
+				return items;
+			}
+		}
+
+		if (value && typeof value === 'object') {
+			const nestedItems = extractItemsFromResponse(value);
+			if (nestedItems && nestedItems.length > 0) {
+				return nestedItems;
+			}
+		}
+	}
+
+	return null;
+}
+
+function getTotalCount(responseData: unknown): number | undefined {
+	if (!responseData || typeof responseData !== 'object' || Array.isArray(responseData)) {
+		return undefined;
+	}
+
+	const responseObject = responseData as IDataObject;
+	const preferredKeys = ['TotalCount', 'Total', 'Count'];
+	for (const key of preferredKeys) {
+		const value = responseObject[key];
+		if (typeof value === 'number') {
+			return value;
+		}
+	}
+
+	for (const value of Object.values(responseObject)) {
+		if (value && typeof value === 'object' && !Array.isArray(value)) {
+			const nestedTotal = getTotalCount(value);
+			if (nestedTotal !== undefined) {
+				return nestedTotal;
+			}
+		}
+	}
+
+	return undefined;
 }
 
 async function cronoApiRequest(
@@ -283,10 +480,26 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Create', value: 'create', action: 'Create a list' },
 					{ name: 'Delete', value: 'delete', action: 'Delete a list' },
 					{ name: 'Get', value: 'get', action: 'Get a list' },
-					{ name: 'Remove Companies', value: 'removeCompanies', action: 'Remove companies from a list' },
-					{ name: 'Remove Contacts', value: 'removeContacts', action: 'Remove contacts from a list' },
-					{ name: 'Remove Sequences', value: 'removeSequences', action: 'Remove sequences from a list' },
-					{ name: 'Remove Templates', value: 'removeTemplates', action: 'Remove templates from a list' },
+					{
+						name: 'Remove Companies',
+						value: 'removeCompanies',
+						action: 'Remove companies from a list',
+					},
+					{
+						name: 'Remove Contacts',
+						value: 'removeContacts',
+						action: 'Remove contacts from a list',
+					},
+					{
+						name: 'Remove Sequences',
+						value: 'removeSequences',
+						action: 'Remove sequences from a list',
+					},
+					{
+						name: 'Remove Templates',
+						value: 'removeTemplates',
+						action: 'Remove templates from a list',
+					},
 					{ name: 'Search', value: 'search', action: 'Search lists' },
 					{ name: 'Update', value: 'update', action: 'Update a list' },
 				],
@@ -438,6 +651,19 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
+				displayName: 'Return All',
+				name: 'returnAll',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return all results or only up to a given limit',
+				displayOptions: {
+					show: {
+						resource: ['company', 'contact', 'deal', 'note', 'activity', 'user', 'import'],
+						operation: ['getAll'],
+					},
+				},
+			},
+			{
 				displayName: 'Limit',
 				name: 'limit',
 				type: 'number',
@@ -477,6 +703,31 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'JSON object of include options to add as query parameters',
+			},
+			{
+				displayName: 'Return All',
+				name: 'returnAll',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return all results or only up to a given limit',
+				displayOptions: {
+					show: {
+						resource: [
+							'company',
+							'contact',
+							'deal',
+							'note',
+							'activity',
+							'list',
+							'sequence',
+							'template',
+							'user',
+							'task',
+						],
+						operation: ['search', 'searchDetails'],
+						useRawJsonSearch: [false],
+					},
+				},
 			},
 			{
 				displayName: 'Use Raw JSON',
@@ -559,12 +810,11 @@ export class CronoPublicApi implements INodeType {
 			{
 				displayName: 'Additional Fields',
 				name: 'dataAdditionalFields',
-				type: 'collection',
+				type: 'fixedCollection',
 				typeOptions: {
-					multipleValueButtonText: 'Add Field',
 					multipleValues: true,
 				},
-				default: [],
+				default: {},
 				displayOptions: {
 					show: {
 						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
@@ -575,28 +825,33 @@ export class CronoPublicApi implements INodeType {
 				description: 'Additional data fields to merge into the payload',
 				options: [
 					{
-						displayName: 'Field',
 						name: 'field',
-						type: 'string',
-						default: '',
-					},
-					{
-						displayName: 'Value',
-						name: 'value',
-						type: 'string',
-						default: '',
+						displayName: 'Field',
+						values: [
+							{
+								displayName: 'Field',
+								name: 'field',
+								type: 'string',
+								default: '',
+							},
+							{
+								displayName: 'Value',
+								name: 'value',
+								type: 'string',
+								default: '',
+							},
+						],
 					},
 				],
 			},
 			{
 				displayName: 'Additional Fields',
 				name: 'searchAdditionalFields',
-				type: 'collection',
+				type: 'fixedCollection',
 				typeOptions: {
-					multipleValueButtonText: 'Add Field',
 					multipleValues: true,
 				},
-				default: [],
+				default: {},
 				displayOptions: {
 					show: {
 						resource: [
@@ -619,16 +874,22 @@ export class CronoPublicApi implements INodeType {
 				description: 'Additional search fields to merge into the payload',
 				options: [
 					{
-						displayName: 'Field',
 						name: 'field',
-						type: 'string',
-						default: '',
-					},
-					{
-						displayName: 'Value',
-						name: 'value',
-						type: 'string',
-						default: '',
+						displayName: 'Field',
+						values: [
+							{
+								displayName: 'Field',
+								name: 'field',
+								type: 'string',
+								default: '',
+							},
+							{
+								displayName: 'Value',
+								name: 'value',
+								type: 'string',
+								default: '',
+							},
+						],
 					},
 				],
 			},
@@ -1873,7 +2134,6 @@ export class CronoPublicApi implements INodeType {
 								type: 'string',
 								default: '',
 							},
-							
 						],
 					},
 				],
@@ -3463,7 +3723,8 @@ export class CronoPublicApi implements INodeType {
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
-				},			},
+				},
+			},
 			{
 				displayName: 'Include Tags',
 				name: 'companySearchIncludeTags',
@@ -3475,7 +3736,7 @@ export class CronoPublicApi implements INodeType {
 						operation: ['search'],
 						useRawJsonSearch: [false],
 					},
-				},			
+				},
 			},
 			{
 				displayName: 'Include Tasks Analytics',
@@ -3852,7 +4113,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Has Email',
+				displayName: 'Has Email Address',
 				name: 'contactSearchHasEmail',
 				type: 'boolean',
 				default: false,
@@ -3878,7 +4139,7 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Has LinkedIn',
+				displayName: 'Has LinkedIn Url',
 				name: 'contactSearchHasLinkedin',
 				type: 'boolean',
 				default: false,
@@ -6254,7 +6515,12 @@ export class CronoPublicApi implements INodeType {
 			const apiVersion = this.getNodeParameter('apiVersion', itemIndex, '1') as string;
 			const basePath = `/api/v${apiVersion}`;
 			const useRawJsonData = this.getNodeParameter('useRawJsonData', itemIndex, false) as boolean;
-			const useRawJsonSearch = this.getNodeParameter('useRawJsonSearch', itemIndex, false) as boolean;
+			const useRawJsonSearch = this.getNodeParameter(
+				'useRawJsonSearch',
+				itemIndex,
+				false,
+			) as boolean;
+			const returnAll = this.getNodeParameter('returnAll', itemIndex, false) as boolean;
 
 			let endpoint = '';
 			let method: IHttpRequestMethods = 'GET';
@@ -6435,11 +6701,7 @@ export class CronoPublicApi implements INodeType {
 							);
 							const includes: IDataObject = {};
 							if (
-								this.getNodeParameter(
-									'companySearchIncludeExternalValuesNoTags',
-									itemIndex,
-									false,
-								)
+								this.getNodeParameter('companySearchIncludeExternalValuesNoTags', itemIndex, false)
 							) {
 								includes.WithExternalValuesNoTags = true;
 							}
@@ -6469,7 +6731,10 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(pagination).length) {
 								searchBody.Pagination = pagination;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					} else if (operation === 'create') {
@@ -6693,7 +6958,11 @@ export class CronoPublicApi implements INodeType {
 								data.EnrichCompany = true;
 							}
 							const aiExternalPropertyIds = parseCsv(
-								this.getNodeParameter('companyImportAiExternalPropertyIds', itemIndex, '') as string,
+								this.getNodeParameter(
+									'companyImportAiExternalPropertyIds',
+									itemIndex,
+									'',
+								) as string,
 							);
 							if (aiExternalPropertyIds.length) {
 								data.AiExternalPropertiesIdsToGenerate = aiExternalPropertyIds.map((id) =>
@@ -6970,7 +7239,10 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(pagination).length) {
 								searchBody.Pagination = pagination;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					} else if (operation === 'create') {
@@ -7284,7 +7556,11 @@ export class CronoPublicApi implements INodeType {
 								data.VerifyEmail = true;
 							}
 							const aiExternalPropertyIds = parseCsv(
-								this.getNodeParameter('contactImportAiExternalPropertyIds', itemIndex, '') as string,
+								this.getNodeParameter(
+									'contactImportAiExternalPropertyIds',
+									itemIndex,
+									'',
+								) as string,
 							);
 							if (aiExternalPropertyIds.length) {
 								data.AiExternalPropertiesIdsToGenerate = aiExternalPropertyIds.map((id) =>
@@ -7426,7 +7702,10 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(includes).length) {
 								searchBody.Includes = includes;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					} else if (operation === 'create') {
@@ -7440,20 +7719,12 @@ export class CronoPublicApi implements INodeType {
 								'AccountId',
 								this.getNodeParameter('dealCreateAccountId', itemIndex, ''),
 							);
-							addIfNotEmpty(
-								data,
-								'Name',
-								this.getNodeParameter('dealCreateName', itemIndex, ''),
-							);
+							addIfNotEmpty(data, 'Name', this.getNodeParameter('dealCreateName', itemIndex, ''));
 							const amount = this.getNodeParameter('dealCreateAmount', itemIndex, 0) as number;
 							if (amount) {
 								data.Amount = amount;
 							}
-							addIfNotEmpty(
-								data,
-								'Stage',
-								this.getNodeParameter('dealCreateStage', itemIndex, ''),
-							);
+							addIfNotEmpty(data, 'Stage', this.getNodeParameter('dealCreateStage', itemIndex, ''));
 							addIfNotEmpty(
 								data,
 								'Pipeline',
@@ -7502,20 +7773,12 @@ export class CronoPublicApi implements INodeType {
 								'OpportunityId',
 								this.getNodeParameter('dealUpdateOpportunityId', itemIndex, ''),
 							);
-							addIfNotEmpty(
-								data,
-								'Name',
-								this.getNodeParameter('dealUpdateName', itemIndex, ''),
-							);
+							addIfNotEmpty(data, 'Name', this.getNodeParameter('dealUpdateName', itemIndex, ''));
 							const amount = this.getNodeParameter('dealUpdateAmount', itemIndex, 0) as number;
 							if (amount) {
 								data.Amount = amount;
 							}
-							addIfNotEmpty(
-								data,
-								'Stage',
-								this.getNodeParameter('dealUpdateStage', itemIndex, ''),
-							);
+							addIfNotEmpty(data, 'Stage', this.getNodeParameter('dealUpdateStage', itemIndex, ''));
 							addIfNotEmpty(
 								data,
 								'CloseDate',
@@ -7649,7 +7912,10 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(includes).length) {
 								searchBody.Includes = includes;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					} else if (operation === 'create') {
@@ -7736,7 +8002,11 @@ export class CronoPublicApi implements INodeType {
 							if (types.length) {
 								searchBody.Types = types;
 							}
-							const subtypes = this.getNodeParameter('taskSearchSubtypes', itemIndex, []) as string[];
+							const subtypes = this.getNodeParameter(
+								'taskSearchSubtypes',
+								itemIndex,
+								[],
+							) as string[];
 							if (subtypes.length) {
 								searchBody.Subtypes = subtypes;
 							}
@@ -7745,11 +8015,7 @@ export class CronoPublicApi implements INodeType {
 								'Since',
 								this.getNodeParameter('taskSearchSince', itemIndex, ''),
 							);
-							addIfNotEmpty(
-								searchBody,
-								'To',
-								this.getNodeParameter('taskSearchTo', itemIndex, ''),
-							);
+							addIfNotEmpty(searchBody, 'To', this.getNodeParameter('taskSearchTo', itemIndex, ''));
 							if (this.getNodeParameter('taskSearchAutomatic', itemIndex, false)) {
 								searchBody.Automatic = true;
 							}
@@ -7864,7 +8130,10 @@ export class CronoPublicApi implements INodeType {
 							if (accountScoreLevels.length) {
 								searchBody.AccountScoreLevels = accountScoreLevels;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					} else if (operation === 'create') {
@@ -7883,11 +8152,7 @@ export class CronoPublicApi implements INodeType {
 								'ProspectId',
 								this.getNodeParameter('taskCreateProspectId', itemIndex, ''),
 							);
-							addIfNotEmpty(
-								data,
-								'Type',
-								this.getNodeParameter('taskCreateType', itemIndex, ''),
-							);
+							addIfNotEmpty(data, 'Type', this.getNodeParameter('taskCreateType', itemIndex, ''));
 							addIfNotEmpty(
 								data,
 								'Subtype',
@@ -7898,11 +8163,19 @@ export class CronoPublicApi implements INodeType {
 								'ActivityDate',
 								this.getNodeParameter('taskCreateActivityDate', itemIndex, ''),
 							);
-							const templateId = this.getNodeParameter('taskCreateTemplateId', itemIndex, 0) as number;
+							const templateId = this.getNodeParameter(
+								'taskCreateTemplateId',
+								itemIndex,
+								0,
+							) as number;
 							if (templateId) {
 								data.TemplateId = templateId;
 							}
-							data.Automatic = this.getNodeParameter('taskCreateAutomatic', itemIndex, false) as boolean;
+							data.Automatic = this.getNodeParameter(
+								'taskCreateAutomatic',
+								itemIndex,
+								false,
+							) as boolean;
 							addIfNotEmpty(
 								data,
 								'OpportunityId',
@@ -8090,7 +8363,10 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(includes).length) {
 								searchBody.Include = includes;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					}
@@ -8124,11 +8400,19 @@ export class CronoPublicApi implements INodeType {
 								'ProspectId',
 								this.getNodeParameter('listSearchProspectId', itemIndex, ''),
 							);
-							const strategyId = this.getNodeParameter('listSearchStrategyId', itemIndex, 0) as number;
+							const strategyId = this.getNodeParameter(
+								'listSearchStrategyId',
+								itemIndex,
+								0,
+							) as number;
 							if (strategyId) {
 								searchBody.StrategyId = strategyId;
 							}
-							const templateId = this.getNodeParameter('listSearchTemplateId', itemIndex, 0) as number;
+							const templateId = this.getNodeParameter(
+								'listSearchTemplateId',
+								itemIndex,
+								0,
+							) as number;
 							if (templateId) {
 								searchBody.TemplateId = templateId;
 							}
@@ -8156,7 +8440,10 @@ export class CronoPublicApi implements INodeType {
 								'SortType',
 								this.getNodeParameter('listSearchSortType', itemIndex, ''),
 							);
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					} else if (operation === 'create') {
@@ -8165,11 +8452,7 @@ export class CronoPublicApi implements INodeType {
 							? getJsonParameter(this, 'data', itemIndex)
 							: {};
 						if (!useRawJsonData) {
-							addIfNotEmpty(
-								data,
-								'Name',
-								this.getNodeParameter('listCreateName', itemIndex, ''),
-							);
+							addIfNotEmpty(data, 'Name', this.getNodeParameter('listCreateName', itemIndex, ''));
 							addIfNotEmpty(
 								data,
 								'Type',
@@ -8207,11 +8490,7 @@ export class CronoPublicApi implements INodeType {
 							if (listUpdateId) {
 								data.Id = listUpdateId;
 							}
-							addIfNotEmpty(
-								data,
-								'Name',
-								this.getNodeParameter('listUpdateName', itemIndex, ''),
-							);
+							addIfNotEmpty(data, 'Name', this.getNodeParameter('listUpdateName', itemIndex, ''));
 							if (this.getNodeParameter('listUpdateShared', itemIndex, false)) {
 								data.Shared = true;
 							}
@@ -8239,7 +8518,9 @@ export class CronoPublicApi implements INodeType {
 						);
 						body = { listId, objectIds };
 					} else if (
-						['addTemplates', 'removeTemplates', 'addSequences', 'removeSequences'].includes(operation)
+						['addTemplates', 'removeTemplates', 'addSequences', 'removeSequences'].includes(
+							operation,
+						)
 					) {
 						method = operation.startsWith('remove') ? 'DELETE' : 'POST';
 						endpoint = `${endpoint}/${operation.includes('Templates') ? 'Template' : 'Strategy'}`;
@@ -8351,7 +8632,10 @@ export class CronoPublicApi implements INodeType {
 							if (this.getNodeParameter('strategyDetailsOnlyMyProspects', itemIndex, false)) {
 								searchBody.OnlyMyProspects = true;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						} else {
 							const searchBody: IDataObject = {};
@@ -8400,12 +8684,7 @@ export class CronoPublicApi implements INodeType {
 								'Sort',
 								this.getNodeParameter('strategySearchSort', itemIndex, ''),
 							);
-							const strategyTags = getJsonParameter(
-								this,
-								'strategySearchTags',
-								itemIndex,
-								{},
-							);
+							const strategyTags = getJsonParameter(this, 'strategySearchTags', itemIndex, {});
 							if (Object.keys(strategyTags).length) {
 								searchBody.StrategyTags = strategyTags;
 							}
@@ -8431,7 +8710,10 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(includeOptions).length) {
 								searchBody.IncludeOptions = includeOptions;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					}
@@ -8503,7 +8785,10 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(pagination).length) {
 								searchBody.Pagination = pagination;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					}
@@ -8542,7 +8827,10 @@ export class CronoPublicApi implements INodeType {
 						if (this.getNodeParameter('externalPropertySearchOnlyAiVariables', itemIndex, false)) {
 							searchBody.OnlyAiVariables = true;
 						}
-						Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+						Object.assign(
+							searchBody,
+							getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+						);
 						body = searchBody;
 					}
 					break;
@@ -8589,7 +8877,10 @@ export class CronoPublicApi implements INodeType {
 							if (Object.keys(pagination).length) {
 								searchBody.Pagination = pagination;
 							}
-							Object.assign(searchBody, getAdditionalFields(this, 'searchAdditionalFields', itemIndex));
+							Object.assign(
+								searchBody,
+								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
+							);
 							body = searchBody;
 						}
 					}
@@ -8620,8 +8911,76 @@ export class CronoPublicApi implements INodeType {
 					});
 			}
 
-			const responseData = await cronoApiRequest.call(this, method, endpoint, qs, body);
-			returnData.push({ json: responseData, pairedItem: { item: itemIndex } });
+			const pagination = returnAll && !useRawJsonSearch ? getPaginationConfig(qs, body) : undefined;
+			if (pagination) {
+				const maxIterations = 100;
+				const aggregatedItems: IDataObject[] = [];
+				let currentOffset = pagination.offset;
+				let iterationCount = 0;
+				let fallbackResponse: IDataObject | undefined;
+				let reachedMaxIterations = false;
+				const pageSize = pagination.limit > 0 ? pagination.limit : 1;
+
+				while (true) {
+					iterationCount += 1;
+					if (iterationCount > maxIterations) {
+						reachedMaxIterations = true;
+						break;
+					}
+
+					const requestQs = cloneDataObject(qs);
+					const requestBody = cloneDataObject(body);
+					setPaginationOffset(requestQs, requestBody, pagination, currentOffset);
+
+					const responseData = await cronoApiRequest.call(
+						this,
+						method,
+						endpoint,
+						requestQs,
+						requestBody,
+					);
+					const pageItems = extractItemsFromResponse(responseData);
+
+					if (!pageItems) {
+						fallbackResponse = responseData as IDataObject;
+						break;
+					}
+
+					aggregatedItems.push(...pageItems);
+
+					if (pageItems.length === 0) {
+						break;
+					}
+
+					const totalCount = getTotalCount(responseData);
+					const nextOffset = currentOffset + pageSize;
+					if (totalCount !== undefined) {
+						if (nextOffset >= totalCount) {
+							break;
+						}
+					} else if (pageItems.length < pageSize) {
+						break;
+					}
+
+					currentOffset = nextOffset;
+				}
+
+				if (reachedMaxIterations && fallbackResponse) {
+					returnData.push({ json: fallbackResponse, pairedItem: { item: itemIndex } });
+				} else if (aggregatedItems.length > 0) {
+					returnData.push(
+						...aggregatedItems.map((json) => ({
+							json,
+							pairedItem: { item: itemIndex },
+						})),
+					);
+				} else if (fallbackResponse) {
+					returnData.push({ json: fallbackResponse, pairedItem: { item: itemIndex } });
+				}
+			} else {
+				const responseData = await cronoApiRequest.call(this, method, endpoint, qs, body);
+				returnData.push({ json: responseData, pairedItem: { item: itemIndex } });
+			}
 		}
 
 		return [returnData];
