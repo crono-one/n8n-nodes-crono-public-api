@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.4.0...v1.4.1) (2026-05-06)
+
+### Bug Fixes
+
+* hide getAll pagination fields when return all is enabled ([62df158](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/62df1583dee443b5b18036876c8d9e669e30f879))
+
 ## [1.4.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.3.0...v1.4.0) (2026-04-13)
 
 ### Features
