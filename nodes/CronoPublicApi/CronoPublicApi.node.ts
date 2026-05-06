@@ -676,6 +676,7 @@ export class CronoPublicApi implements INodeType {
 					show: {
 						resource: ['company', 'contact', 'deal', 'note', 'activity', 'user', 'import'],
 						operation: ['getAll'],
+						returnAll: [false],
 					},
 				},
 			},
@@ -688,6 +689,7 @@ export class CronoPublicApi implements INodeType {
 					show: {
 						resource: ['company', 'contact', 'deal', 'note', 'activity', 'user', 'import'],
 						operation: ['getAll'],
+						returnAll: [false],
 					},
 				},
 			},
