@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.4.1...v1.4.2) (2026-05-06)
+
+### Bug Fixes
+
+* regenerate lockfile for npm ci compatibility ([2fe02fc](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/2fe02fc43816d701ecac46611b6e88028615a4b6))
+* update community node package metadata ([a777232](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/a777232b1097a7e7ad80c0723d8c019d2568eafb))
+
 ## [1.4.1](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.4.0...v1.4.1) (2026-05-06)
 
 ### Bug Fixes

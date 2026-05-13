@@ -22,7 +22,8 @@ type CronoResource =
 	| 'template'
 	| 'externalProperty'
 	| 'user'
-	| 'import';
+	| 'import'
+	| 'sync';
 
 function getJsonParameter(
 	executeFunctions: IExecuteFunctions,
@@ -360,6 +361,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Note', value: 'note' },
 					{ name: 'Pipeline', value: 'pipeline' },
 					{ name: 'Sequence', value: 'sequence' },
+					{ name: 'Sync', value: 'sync' },
 					{ name: 'Task', value: 'task' },
 					{ name: 'Template', value: 'template' },
 					{ name: 'User', value: 'user' },
@@ -380,6 +382,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Get Many', value: 'getAll', action: 'Get many companies' },
 					{ name: 'Import', value: 'import', action: 'Import companies' },
 					{ name: 'Search', value: 'search', action: 'Search companies' },
+					{ name: 'Sync', value: 'sync', action: 'Sync companies from CRM' },
 					{ name: 'Update', value: 'update', action: 'Update a company' },
 				],
 				default: 'getAll',
@@ -398,6 +401,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Get Many', value: 'getAll', action: 'Get many contacts' },
 					{ name: 'Import', value: 'import', action: 'Import contacts' },
 					{ name: 'Search', value: 'search', action: 'Search contacts' },
+					{ name: 'Sync', value: 'sync', action: 'Sync contacts from CRM' },
 					{ name: 'Update', value: 'update', action: 'Update a contact' },
 				],
 				default: 'getAll',
@@ -415,6 +419,7 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Get', value: 'get', action: 'Get a deal' },
 					{ name: 'Get Many', value: 'getAll', action: 'Get many deals' },
 					{ name: 'Search', value: 'search', action: 'Search deals' },
+					{ name: 'Sync', value: 'sync', action: 'Sync deals from CRM' },
 					{ name: 'Update', value: 'update', action: 'Update a deal' },
 				],
 				default: 'getAll',
@@ -599,6 +604,20 @@ export class CronoPublicApi implements INodeType {
 				default: 'getAll',
 			},
 			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: { resource: ['sync'] },
+				},
+				options: [
+					{ name: 'Get', value: 'get', action: 'Get a sync job' },
+					{ name: 'Get Many', value: 'getAll', action: 'Get many sync jobs' },
+				],
+				default: 'getAll',
+			},
+			{
 				displayName: 'Object ID',
 				name: 'objectId',
 				type: 'string',
@@ -649,6 +668,20 @@ export class CronoPublicApi implements INodeType {
 						operation: ['get'],
 					},
 				},
+			},
+			{
+				displayName: 'Sync ID',
+				name: 'syncId',
+				type: 'number',
+				default: 0,
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['sync'],
+						operation: ['get'],
+					},
+				},
+				description: 'Numeric identifier of the sync job to retrieve (returned by the originating sync request)',
 			},
 			{
 				displayName: 'Return All',
@@ -790,7 +823,7 @@ export class CronoPublicApi implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
-						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
+						operation: ['create', 'update', 'import', 'sync', 'addContacts', 'stopContactSequence'],
 					},
 				},
 				description: 'Whether to send a raw JSON data payload',
@@ -803,7 +836,7 @@ export class CronoPublicApi implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
-						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
+						operation: ['create', 'update', 'import', 'sync', 'addContacts', 'stopContactSequence'],
 						useRawJsonData: [true],
 					},
 				},
@@ -820,7 +853,7 @@ export class CronoPublicApi implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['company', 'contact', 'deal', 'note', 'task', 'list', 'sequence'],
-						operation: ['create', 'update', 'import', 'addContacts', 'stopContactSequence'],
+						operation: ['create', 'update', 'import', 'sync', 'addContacts', 'stopContactSequence'],
 						useRawJsonData: [false],
 					},
 				},
@@ -1436,6 +1469,36 @@ export class CronoPublicApi implements INodeType {
 					},
 				},
 				description: 'Comma-separated list of AI external property IDs to generate',
+			},
+			{
+				displayName: 'Object IDs',
+				name: 'companySyncObjectIds',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['sync'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Comma-separated list of CRM object IDs of the companies to synchronize',
+			},
+			{
+				displayName: 'List ID',
+				name: 'companySyncListId',
+				type: 'number',
+				default: 0,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['sync'],
+						useRawJsonData: [false],
+					},
+				},
+				description:
+					'Optional Crono list ID. When provided, the synchronized companies are also added to this list at the end of the job.',
 			},
 			{
 				displayName: 'First Name',
@@ -2243,6 +2306,65 @@ export class CronoPublicApi implements INodeType {
 				description: 'Comma-separated list of AI external property IDs to generate',
 			},
 			{
+				displayName: 'Object IDs',
+				name: 'contactSyncObjectIds',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['sync'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Comma-separated list of CRM object IDs of the contacts to synchronize',
+			},
+			{
+				displayName: 'Is Lead',
+				name: 'contactSyncIsLead',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['sync'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Whether the provided object IDs should be treated as leads instead of contacts',
+			},
+			{
+				displayName: 'List ID',
+				name: 'contactSyncListId',
+				type: 'number',
+				default: 0,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['sync'],
+						useRawJsonData: [false],
+					},
+				},
+				description:
+					'Optional Crono list ID. When provided, the synchronized contacts are also added to this list at the end of the job.',
+			},
+			{
+				displayName: 'Strategy ID',
+				name: 'contactSyncStrategyId',
+				type: 'number',
+				default: 0,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['sync'],
+						useRawJsonData: [false],
+					},
+				},
+				description:
+					'Optional Crono sequence (strategy) ID. When provided, the synchronized contacts are also enrolled in this sequence at the end of the job.',
+			},
+			{
 				displayName: 'Company ID',
 				name: 'dealCreateAccountId',
 				type: 'string',
@@ -2532,6 +2654,21 @@ export class CronoPublicApi implements INodeType {
 				description: 'Owner user ID',
 			},
 			{
+				displayName: 'Object IDs',
+				name: 'dealSyncObjectIds',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['sync'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Comma-separated list of CRM object IDs of the deals to synchronize',
+			},
+			{
 				displayName: 'Description',
 				name: 'noteCreateDescription',
 				type: 'string',
@@ -2808,6 +2945,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['task'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of tasks to return',
@@ -2822,6 +2960,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['task'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of tasks to skip',
@@ -3343,6 +3482,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['company'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -3357,6 +3497,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['company'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -3835,6 +3976,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['contact'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -3849,6 +3991,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['contact'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -4509,6 +4652,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['deal'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -4523,6 +4667,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['deal'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -4823,6 +4968,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['note'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -4837,6 +4983,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['note'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -5059,6 +5206,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['activity'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -5073,6 +5221,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['activity'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -5482,6 +5631,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['list'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -5496,6 +5646,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['list'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -5583,6 +5734,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -5597,6 +5749,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['sequence'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -5733,6 +5886,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -5747,6 +5901,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['sequence'],
 						operation: ['searchDetails'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -6019,6 +6174,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['user'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -6033,6 +6189,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['user'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -6444,6 +6601,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['template'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Max number of results to return',
@@ -6458,6 +6616,7 @@ export class CronoPublicApi implements INodeType {
 						resource: ['template'],
 						operation: ['search'],
 						useRawJsonSearch: [false],
+						returnAll: [false],
 					},
 				},
 				description: 'Number of results to skip',
@@ -6503,6 +6662,63 @@ export class CronoPublicApi implements INodeType {
 					{ name: 'Stop Request From User', value: 'StopRequestFromUser' },
 				],
 				description: 'Filter imports by status',
+			},
+			{
+				displayName: 'Sync Type',
+				name: 'syncType',
+				type: 'options',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['sync'],
+						operation: ['getAll'],
+					},
+				},
+				options: [
+					{ name: 'All', value: '' },
+					{ name: 'Company', value: 'Account' },
+					{ name: 'Contact', value: 'Prospect' },
+					{ name: 'Deal', value: 'Opportunity' },
+				],
+				description: 'Filter sync jobs by table type',
+			},
+			{
+				displayName: 'Sync Status',
+				name: 'syncStatus',
+				type: 'options',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['sync'],
+						operation: ['getAll'],
+					},
+				},
+				options: [
+					{ name: 'All', value: '' },
+					{ name: 'Completed', value: 'Completed' },
+					{ name: 'Completed With Errors', value: 'CompletedWithErrors' },
+					{ name: 'On Going', value: 'OnGoing' },
+					{ name: 'Started', value: 'Started' },
+				],
+				description: 'Filter sync jobs by status',
+			},
+			{
+				displayName: 'Limit',
+				name: 'syncLimit',
+				type: 'number',
+				typeOptions: {
+					minValue: 1,
+					maxValue: 100,
+				},
+				default: 50,
+				displayOptions: {
+					show: {
+						resource: ['sync'],
+						operation: ['getAll'],
+					},
+				},
+				description:
+					'Max number of sync jobs to return, ordered by start date descending (capped at 100)',
 			},
 		],
 	};
@@ -6970,6 +7186,26 @@ export class CronoPublicApi implements INodeType {
 								data.AiExternalPropertiesIdsToGenerate = aiExternalPropertyIds.map((id) =>
 									parseInt(id, 10),
 								);
+							}
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
+						}
+						body = { data };
+					} else if (operation === 'sync') {
+						method = 'POST';
+						endpoint = `${endpoint}/sync`;
+						const data: IDataObject = useRawJsonData
+							? getJsonParameter(this, 'data', itemIndex)
+							: {};
+						if (!useRawJsonData) {
+							const objectIds = parseCsv(
+								this.getNodeParameter('companySyncObjectIds', itemIndex, '') as string,
+							);
+							if (objectIds.length) {
+								data.ObjectIds = objectIds;
+							}
+							const listId = this.getNodeParameter('companySyncListId', itemIndex, 0) as number;
+							if (listId) {
+								data.ListId = listId;
 							}
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
@@ -7572,6 +7808,37 @@ export class CronoPublicApi implements INodeType {
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
+					} else if (operation === 'sync') {
+						method = 'POST';
+						endpoint = `${endpoint}/sync`;
+						const data: IDataObject = useRawJsonData
+							? getJsonParameter(this, 'data', itemIndex)
+							: {};
+						if (!useRawJsonData) {
+							const objectIds = parseCsv(
+								this.getNodeParameter('contactSyncObjectIds', itemIndex, '') as string,
+							);
+							if (objectIds.length) {
+								data.ObjectIds = objectIds;
+							}
+							if (this.getNodeParameter('contactSyncIsLead', itemIndex, false)) {
+								data.IsLead = true;
+							}
+							const listId = this.getNodeParameter('contactSyncListId', itemIndex, 0) as number;
+							if (listId) {
+								data.ListId = listId;
+							}
+							const strategyId = this.getNodeParameter(
+								'contactSyncStrategyId',
+								itemIndex,
+								0,
+							) as number;
+							if (strategyId) {
+								data.StrategyId = strategyId;
+							}
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
+						}
+						body = { data };
 					}
 					break;
 				}
@@ -7811,6 +8078,22 @@ export class CronoPublicApi implements INodeType {
 								'UserId',
 								this.getNodeParameter('dealUpdateUserId', itemIndex, ''),
 							);
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
+						}
+						body = { data };
+					} else if (operation === 'sync') {
+						method = 'POST';
+						endpoint = `${endpoint}/sync`;
+						const data: IDataObject = useRawJsonData
+							? getJsonParameter(this, 'data', itemIndex)
+							: {};
+						if (!useRawJsonData) {
+							const objectIds = parseCsv(
+								this.getNodeParameter('dealSyncObjectIds', itemIndex, '') as string,
+							);
+							if (objectIds.length) {
+								data.ObjectIds = objectIds;
+							}
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
@@ -8903,6 +9186,32 @@ export class CronoPublicApi implements INodeType {
 						}
 						if (importStatus) {
 							qs.statusType = importStatus;
+						}
+					}
+					break;
+				}
+				case 'sync': {
+					endpoint = `${basePath}/Sync`;
+					if (operation === 'get') {
+						method = 'GET';
+						const syncId = this.getNodeParameter('syncId', itemIndex) as number;
+						endpoint = `${endpoint}/${syncId}`;
+					} else if (operation === 'getAll') {
+						method = 'GET';
+						// SyncController only supports `limit` (no offset). Reset qs to drop the default
+						// Offset injected by the shared getAll block, then add limit + filters.
+						qs = {};
+						const syncType = this.getNodeParameter('syncType', itemIndex, '') as string;
+						const syncStatus = this.getNodeParameter('syncStatus', itemIndex, '') as string;
+						const syncLimit = this.getNodeParameter('syncLimit', itemIndex, 50) as number;
+						if (syncLimit) {
+							qs.limit = syncLimit;
+						}
+						if (syncType) {
+							qs.type = syncType;
+						}
+						if (syncStatus) {
+							qs.statusType = syncStatus;
 						}
 					}
 					break;
