@@ -54,6 +54,41 @@ function getJsonParameter(
 	return value as IDataObject;
 }
 
+function getJsonArrayParameter(
+	executeFunctions: IExecuteFunctions,
+	parameterName: string,
+	itemIndex: number,
+	defaultValue: IDataObject[] = [],
+): IDataObject[] {
+	const value = executeFunctions.getNodeParameter(parameterName, itemIndex, defaultValue);
+
+	if (value === '' || value === undefined || value === null) {
+		return defaultValue;
+	}
+
+	if (typeof value === 'string') {
+		try {
+			const parsed = JSON.parse(value);
+			if (Array.isArray(parsed)) {
+				return parsed as IDataObject[];
+			}
+		} catch (error) {
+			throw new NodeOperationError(executeFunctions.getNode(), error as Error, {
+				message: `Parameter "${parameterName}" is not valid JSON.`,
+				itemIndex,
+			});
+		}
+	}
+
+	if (Array.isArray(value)) {
+		return value as IDataObject[];
+	}
+
+	throw new NodeOperationError(executeFunctions.getNode(), `Parameter "${parameterName}" must be a JSON array.`, {
+		itemIndex,
+	});
+}
+
 type AdditionalFieldEntry = {
 	field?: string;
 	value?: string;
@@ -535,6 +570,7 @@ export class CronoPublicApi implements INodeType {
 						value: 'addContacts',
 						action: 'Add contacts to a sequence',
 					},
+					{ name: 'Create', value: 'create', action: 'Create a sequence' },
 					{ name: 'Search Sequence', value: 'search', action: 'Search sequence' },
 					{
 						name: 'Search Sequence Details',
@@ -6454,6 +6490,51 @@ export class CronoPublicApi implements INodeType {
 				description: 'Contact object ID whose sequence must be stopped',
 			},
 			{
+				displayName: 'Name',
+				name: 'strategyCreateName',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['sequence'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Sequence name',
+			},
+			{
+				displayName: 'Shared',
+				name: 'strategyCreateShared',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['sequence'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description: 'Whether the sequence is shared with the rest of the subscription',
+			},
+			{
+				displayName: 'Steps (JSON)',
+				name: 'strategyCreateSteps',
+				type: 'json',
+				default: [],
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['sequence'],
+						operation: ['create'],
+						useRawJsonData: [false],
+					},
+				},
+				description:
+					'Array of sequence steps. Each step can include Type, Subtype, Automatic, ReplyToThread, Delay, ScheduleTime, TemplateId, Subject, Content, and Description.',
+			},
+			{
 				displayName: 'Title',
 				name: 'templateSearchTitle',
 				type: 'string',
@@ -8842,6 +8923,27 @@ export class CronoPublicApi implements INodeType {
 							);
 							if (prospectIds.length) {
 								data.ProspectIds = prospectIds;
+							}
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
+						}
+						body = { data };
+					} else if (operation === 'create') {
+						method = 'POST';
+						const data: IDataObject = useRawJsonData
+							? getJsonParameter(this, 'data', itemIndex)
+							: {};
+						if (!useRawJsonData) {
+							addIfNotEmpty(
+								data,
+								'Name',
+								this.getNodeParameter('strategyCreateName', itemIndex, ''),
+							);
+							if (this.getNodeParameter('strategyCreateShared', itemIndex, false)) {
+								data.Shared = true;
+							}
+							const steps = getJsonArrayParameter(this, 'strategyCreateSteps', itemIndex);
+							if (steps.length) {
+								data.Steps = steps;
 							}
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
