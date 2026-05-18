@@ -1,3 +1,10 @@
+## [1.5.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.4.2...v1.5.0) (2026-05-18)
+
+### Features
+
+* add Sync resource and CRM sync operations for Companies, Contacts, Deals ([e7c22e0](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/e7c22e0e0fe7a4b965dcff577c9a64b0d1f81ebb))
+* added new create strategy action ([1e8dd88](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/1e8dd88a5740b14c80ba4c021d6576acb319a174))
+
 ## [1.4.2](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.4.1...v1.4.2) (2026-05-06)
 
 ### Bug Fixes
