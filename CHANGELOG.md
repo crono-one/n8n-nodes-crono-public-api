@@ -1,3 +1,15 @@
+## [1.6.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.5.0...v1.6.0) (2026-06-30)
+
+### Features
+
+* replace JSON include options with individual boolean toggles for get/getAll operations ([af99362](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/af9936262b8ce1c7d84c2e29a7829475725fae86))
+
+### Bug Fixes
+
+* fixed and updated github actions ([712e535](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/712e535c014a4b6a289d6eb4decc5821fa981f5c))
+* fixed cd pipeline ([763f770](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/763f7703016eb3f2bf78668c2ac99eae62bb4972))
+* updated github action ([a76e500](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/a76e500e61985e462b2f13b1414ef3f6725d401d))
+
 ## [1.5.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.4.2...v1.5.0) (2026-05-18)
 
 ### Features
