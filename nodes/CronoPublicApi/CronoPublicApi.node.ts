@@ -763,17 +763,172 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
-				displayName: 'Include Options (JSON)',
-				name: 'includeOptions',
-				type: 'json',
-				default: {},
+				displayName: 'Include User',
+				name: 'companyGetIncludeUser',
+				type: 'boolean',
+				default: false,
 				displayOptions: {
 					show: {
-						resource: ['company', 'contact', 'deal', 'note', 'activity'],
+						resource: ['company'],
 						operation: ['get', 'getAll'],
 					},
 				},
-				description: 'JSON object of include options to add as query parameters',
+			},
+			{
+				displayName: 'Include External Values (No Tags)',
+				name: 'companyGetIncludeExternalValuesNoTags',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include Tags',
+				name: 'companyGetIncludeTags',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include Tasks Analytics',
+				name: 'companyGetIncludeTasksAnalytics',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include Sequences',
+				name: 'companyGetIncludeSequences',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['company'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'contactGetIncludeUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include External Values (No Tags)',
+				name: 'contactGetIncludeExternalValuesNoTags',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include Tags',
+				name: 'contactGetIncludeTags',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include Tasks Analytics',
+				name: 'contactGetIncludeTasksAnalytics',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include Sequences',
+				name: 'contactGetIncludeSequences',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'dealGetIncludeUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include External Values',
+				name: 'dealGetIncludeExternalValues',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['deal'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'noteGetIncludeUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['note'],
+						operation: ['get', 'getAll'],
+					},
+				},
+			},
+			{
+				displayName: 'Include User',
+				name: 'activityGetIncludeUser',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['activity'],
+						operation: ['get', 'getAll'],
+					},
+				},
 			},
 			{
 				displayName: 'Return All',
@@ -6839,11 +6994,18 @@ export class CronoPublicApi implements INodeType {
 						method = 'GET';
 						const objectId = this.getNodeParameter('objectId', itemIndex) as string;
 						endpoint = `${endpoint}/${objectId}`;
-						qs = getJsonParameter(this, 'includeOptions', itemIndex);
+						if (this.getNodeParameter('companyGetIncludeUser', itemIndex, false)) qs.WithUser = true;
+						if (this.getNodeParameter('companyGetIncludeExternalValuesNoTags', itemIndex, false)) qs.WithExternalValuesNoTags = true;
+						if (this.getNodeParameter('companyGetIncludeTags', itemIndex, false)) qs.WithTags = true;
+						if (this.getNodeParameter('companyGetIncludeTasksAnalytics', itemIndex, false)) qs.WithTasksAnalytics = true;
+						if (this.getNodeParameter('companyGetIncludeSequences', itemIndex, false)) qs.WithSequences = true;
 					} else if (operation === 'getAll') {
 						method = 'GET';
-						const includeOptions = getJsonParameter(this, 'includeOptions', itemIndex);
-						qs = { ...qs, ...includeOptions };
+						if (this.getNodeParameter('companyGetIncludeUser', itemIndex, false)) qs.WithUser = true;
+						if (this.getNodeParameter('companyGetIncludeExternalValuesNoTags', itemIndex, false)) qs.WithExternalValuesNoTags = true;
+						if (this.getNodeParameter('companyGetIncludeTags', itemIndex, false)) qs.WithTags = true;
+						if (this.getNodeParameter('companyGetIncludeTasksAnalytics', itemIndex, false)) qs.WithTasksAnalytics = true;
+						if (this.getNodeParameter('companyGetIncludeSequences', itemIndex, false)) qs.WithSequences = true;
 					} else if (operation === 'search') {
 						method = 'POST';
 						endpoint = `${endpoint}/search`;
@@ -7300,11 +7462,18 @@ export class CronoPublicApi implements INodeType {
 						method = 'GET';
 						const objectId = this.getNodeParameter('objectId', itemIndex) as string;
 						endpoint = `${endpoint}/${objectId}`;
-						qs = getJsonParameter(this, 'includeOptions', itemIndex);
+						if (this.getNodeParameter('contactGetIncludeUser', itemIndex, false)) qs.WithUser = true;
+						if (this.getNodeParameter('contactGetIncludeExternalValuesNoTags', itemIndex, false)) qs.WithExternalValuesNoTags = true;
+						if (this.getNodeParameter('contactGetIncludeTags', itemIndex, false)) qs.WithTags = true;
+						if (this.getNodeParameter('contactGetIncludeTasksAnalytics', itemIndex, false)) qs.WithTasksAnalytics = true;
+						if (this.getNodeParameter('contactGetIncludeSequences', itemIndex, false)) qs.WithSequences = true;
 					} else if (operation === 'getAll') {
 						method = 'GET';
-						const includeOptions = getJsonParameter(this, 'includeOptions', itemIndex);
-						qs = { ...qs, ...includeOptions };
+						if (this.getNodeParameter('contactGetIncludeUser', itemIndex, false)) qs.WithUser = true;
+						if (this.getNodeParameter('contactGetIncludeExternalValuesNoTags', itemIndex, false)) qs.WithExternalValuesNoTags = true;
+						if (this.getNodeParameter('contactGetIncludeTags', itemIndex, false)) qs.WithTags = true;
+						if (this.getNodeParameter('contactGetIncludeTasksAnalytics', itemIndex, false)) qs.WithTasksAnalytics = true;
+						if (this.getNodeParameter('contactGetIncludeSequences', itemIndex, false)) qs.WithSequences = true;
 					} else if (operation === 'search') {
 						method = 'POST';
 						endpoint = `${endpoint}/search`;
@@ -7929,11 +8098,12 @@ export class CronoPublicApi implements INodeType {
 						method = 'GET';
 						const objectId = this.getNodeParameter('objectId', itemIndex) as string;
 						endpoint = `${endpoint}/${objectId}`;
-						qs = getJsonParameter(this, 'includeOptions', itemIndex);
+						if (this.getNodeParameter('dealGetIncludeUser', itemIndex, false)) qs.WithUser = true;
+						if (this.getNodeParameter('dealGetIncludeExternalValues', itemIndex, false)) qs.WithExternalValues = true;
 					} else if (operation === 'getAll') {
 						method = 'GET';
-						const includeOptions = getJsonParameter(this, 'includeOptions', itemIndex);
-						qs = { ...qs, ...includeOptions };
+						if (this.getNodeParameter('dealGetIncludeUser', itemIndex, false)) qs.WithUser = true;
+						if (this.getNodeParameter('dealGetIncludeExternalValues', itemIndex, false)) qs.WithExternalValues = true;
 					} else if (operation === 'search') {
 						method = 'POST';
 						endpoint = `${endpoint}/search`;
@@ -8187,11 +8357,10 @@ export class CronoPublicApi implements INodeType {
 						method = 'GET';
 						const objectId = this.getNodeParameter('objectId', itemIndex) as string;
 						endpoint = `${endpoint}/${objectId}`;
-						qs = getJsonParameter(this, 'includeOptions', itemIndex);
+						if (this.getNodeParameter('noteGetIncludeUser', itemIndex, false)) qs.WithUser = true;
 					} else if (operation === 'getAll') {
 						method = 'GET';
-						const includeOptions = getJsonParameter(this, 'includeOptions', itemIndex);
-						qs = { ...qs, ...includeOptions };
+						if (this.getNodeParameter('noteGetIncludeUser', itemIndex, false)) qs.WithUser = true;
 					} else if (operation === 'search') {
 						method = 'POST';
 						endpoint = `${endpoint}/search`;
@@ -8582,11 +8751,10 @@ export class CronoPublicApi implements INodeType {
 						method = 'GET';
 						const objectId = this.getNodeParameter('objectId', itemIndex) as string;
 						endpoint = `${endpoint}/${objectId}`;
-						qs = getJsonParameter(this, 'includeOptions', itemIndex);
+						if (this.getNodeParameter('activityGetIncludeUser', itemIndex, false)) qs.WithUser = true;
 					} else if (operation === 'getAll') {
 						method = 'GET';
-						const includeOptions = getJsonParameter(this, 'includeOptions', itemIndex);
-						qs = { ...qs, ...includeOptions };
+						if (this.getNodeParameter('activityGetIncludeUser', itemIndex, false)) qs.WithUser = true;
 					} else if (operation === 'search') {
 						method = 'POST';
 						endpoint = `${endpoint}/search`;
