@@ -1,8 +1,8 @@
 {
-	"node": "n8n-nodes-crono-public-api",
+	"node": "@crono-one/n8n-nodes-crono-public-api.cronoPublicApi",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
-	"categories": ["Sales & CRM"],
+	"categories": ["Sales"],
 	"resources": {
 		"credentialDocumentation": [
 			{
