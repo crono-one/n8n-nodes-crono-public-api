@@ -8070,10 +8070,10 @@ export class CronoPublicApi implements INodeType {
 									parseInt(id, 10),
 								);
 							}
+							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 							if (this.getNodeParameter('contactImportCreateAsLead', itemIndex, false)) {
 								data.CreateAsLead = true;
 							}
-							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
 						body = { data };
 					} else if (operation === 'sync') {
