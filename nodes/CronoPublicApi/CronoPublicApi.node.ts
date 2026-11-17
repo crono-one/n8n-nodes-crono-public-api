@@ -2497,6 +2497,21 @@ export class CronoPublicApi implements INodeType {
 				description: 'Comma-separated list of AI external property IDs to generate',
 			},
 			{
+				displayName: 'Create as Lead',
+				name: 'contactImportCreateAsLead',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['import'],
+						useRawJsonData: [false],
+					},
+				},
+				description:
+					'Whether to create the records as leads in the connected CRM instead of contacts. Only available when the CRM supports leads.',
+			},
+			{
 				displayName: 'Object IDs',
 				name: 'contactSyncObjectIds',
 				type: 'string',
@@ -8054,6 +8069,9 @@ export class CronoPublicApi implements INodeType {
 								data.AiExternalPropertiesIdsToGenerate = aiExternalPropertyIds.map((id) =>
 									parseInt(id, 10),
 								);
+							}
+							if (this.getNodeParameter('contactImportCreateAsLead', itemIndex, false)) {
+								data.CreateAsLead = true;
 							}
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
 						}
