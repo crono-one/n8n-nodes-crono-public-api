@@ -5697,6 +5697,21 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
+				displayName: 'Include Hyperbound Report',
+				name: 'activitySearchIncludeHyperboundReport',
+				type: 'boolean',
+				default: false,
+				description:
+					'Whether to include the Hyperbound report of each call in its call log. Also includes the call log.',
+				displayOptions: {
+					show: {
+						resource: ['activity'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
 				displayName: 'Include Contact',
 				name: 'activitySearchIncludeProspect',
 				type: 'boolean',
@@ -8911,6 +8926,9 @@ export class CronoPublicApi implements INodeType {
 							}
 							if (this.getNodeParameter('activitySearchIncludeTemplateTitle', itemIndex, false)) {
 								includes.WithTemplateTitle = true;
+							}
+							if (this.getNodeParameter('activitySearchIncludeHyperboundReport', itemIndex, false)) {
+								includes.WithHyperboundReport = true;
 							}
 							if (Object.keys(includes).length) {
 								searchBody.Include = includes;
