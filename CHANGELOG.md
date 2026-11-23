@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.6.0...v1.6.1) (2026-07-02)
+
+### Bug Fixes
+
+* addressed minor n8n comments on node.json file ([e9c697d](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/e9c697d2c802893e82e88f6966fc8f5582ba746e))
+
 ## [1.6.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.5.0...v1.6.0) (2026-06-30)
 
 ### Features
