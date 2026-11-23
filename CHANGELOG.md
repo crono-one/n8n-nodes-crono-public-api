@@ -1,3 +1,14 @@
+## [1.7.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.6.1...v1.7.0) (2026-11-23)
+
+### Features
+
+* add create as lead option to contact import ([86ed430](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/86ed4305068e5f9199151cca19638a4b8c73c808))
+* add include hyperbound report option to activity search ([2874355](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/2874355dc05fa1ce5212e736d7420dca1bb5406d))
+
+### Bug Fixes
+
+* keep create as lead when additional fields are set ([c9a0b89](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/c9a0b89b5542e23544a3500167d61b5bcb5cf44d))
+
 ## [1.6.1](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.6.0...v1.6.1) (2026-07-02)
 
 ### Bug Fixes
