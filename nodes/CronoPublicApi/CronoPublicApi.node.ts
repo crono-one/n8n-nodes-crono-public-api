@@ -2497,6 +2497,21 @@ export class CronoPublicApi implements INodeType {
 				description: 'Comma-separated list of AI external property IDs to generate',
 			},
 			{
+				displayName: 'Create as Lead',
+				name: 'contactImportCreateAsLead',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['contact'],
+						operation: ['import'],
+						useRawJsonData: [false],
+					},
+				},
+				description:
+					'Whether to create the records as leads in the connected CRM instead of contacts. Only available when the CRM supports leads.',
+			},
+			{
 				displayName: 'Object IDs',
 				name: 'contactSyncObjectIds',
 				type: 'string',
@@ -5682,6 +5697,21 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
+				displayName: 'Include Hyperbound Report',
+				name: 'activitySearchIncludeHyperboundReport',
+				type: 'boolean',
+				default: false,
+				description:
+					'Whether to include the Hyperbound report of each call in its call log. Also includes the call log.',
+				displayOptions: {
+					show: {
+						resource: ['activity'],
+						operation: ['search'],
+						useRawJsonSearch: [false],
+					},
+				},
+			},
+			{
 				displayName: 'Include Contact',
 				name: 'activitySearchIncludeProspect',
 				type: 'boolean',
@@ -8056,6 +8086,9 @@ export class CronoPublicApi implements INodeType {
 								);
 							}
 							Object.assign(data, getAdditionalFields(this, 'dataAdditionalFields', itemIndex));
+							if (this.getNodeParameter('contactImportCreateAsLead', itemIndex, false)) {
+								data.CreateAsLead = true;
+							}
 						}
 						body = { data };
 					} else if (operation === 'sync') {
@@ -8893,6 +8926,9 @@ export class CronoPublicApi implements INodeType {
 							}
 							if (this.getNodeParameter('activitySearchIncludeTemplateTitle', itemIndex, false)) {
 								includes.WithTemplateTitle = true;
+							}
+							if (this.getNodeParameter('activitySearchIncludeHyperboundReport', itemIndex, false)) {
+								includes.WithHyperboundReport = true;
 							}
 							if (Object.keys(includes).length) {
 								searchBody.Include = includes;
