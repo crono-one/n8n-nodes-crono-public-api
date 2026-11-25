@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.7.0...v1.8.0) (2026-11-25)
+
+### Features
+
+* add enrolment date and changed since filters to sequence details search ([0c20659](https://github.com/crono-one/n8n-nodes-crono-public-api/commit/0c206594a78a9ba5969bbce063338e1a928a81e9))
+
 ## [1.7.0](https://github.com/crono-one/n8n-nodes-crono-public-api/compare/v1.6.1...v1.7.0) (2026-11-23)
 
 ### Features
