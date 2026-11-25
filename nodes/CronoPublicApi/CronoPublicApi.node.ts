@@ -6229,6 +6229,49 @@ export class CronoPublicApi implements INodeType {
 				},
 			},
 			{
+				displayName: 'Enrolled Since',
+				name: 'strategyDetailsSince',
+				type: 'dateTime',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['sequence'],
+						operation: ['searchDetails'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Only include contacts enrolled on or after this day',
+			},
+			{
+				displayName: 'Enrolled Until',
+				name: 'strategyDetailsTo',
+				type: 'dateTime',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['sequence'],
+						operation: ['searchDetails'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description: 'Only include contacts enrolled on or before this day, the whole day included',
+			},
+			{
+				displayName: 'Changed Since',
+				name: 'strategyDetailsChangedSince',
+				type: 'dateTime',
+				default: '',
+				displayOptions: {
+					show: {
+						resource: ['sequence'],
+						operation: ['searchDetails'],
+						useRawJsonSearch: [false],
+					},
+				},
+				description:
+					'Only include contacts whose sequence started, completed a step or ended at or after this date and time (UTC). Use it to read only what changed since the last run.',
+			},
+			{
 				displayName: 'Table Type',
 				name: 'externalPropertySearchTableType',
 				type: 'options',
@@ -9223,6 +9266,21 @@ export class CronoPublicApi implements INodeType {
 							if (this.getNodeParameter('strategyDetailsOnlyMyProspects', itemIndex, false)) {
 								searchBody.OnlyMyProspects = true;
 							}
+							addIfNotEmpty(
+								searchBody,
+								'Since',
+								this.getNodeParameter('strategyDetailsSince', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'To',
+								this.getNodeParameter('strategyDetailsTo', itemIndex, ''),
+							);
+							addIfNotEmpty(
+								searchBody,
+								'ChangedSince',
+								this.getNodeParameter('strategyDetailsChangedSince', itemIndex, ''),
+							);
 							Object.assign(
 								searchBody,
 								getAdditionalFields(this, 'searchAdditionalFields', itemIndex),
